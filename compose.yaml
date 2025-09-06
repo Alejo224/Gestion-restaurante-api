@@ -1,0 +1,32 @@
+services:
+  app-restaurante:
+    image: app-restaurante
+    container_name: app-restaurante-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - app-restaurante-network
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    container_name: postgres-restaurante
+    environment:
+      POSTGRES_PASSWORD: 2005
+      POSTGRES_DB: restarante_db
+      POSTGRES_USER: alejandro
+    ports:
+      - "5433:5432"
+    networks:
+      - app-restaurante-network
+    volumes:
+      - postgres-volume-restaurante:/var/lib/postgresql/data
+
+networks:
+  app-restaurante-network:
+volumes:
+  postgres-volume-restaurante:

@@ -14,10 +14,10 @@ services:
 
   postgres:
     image: postgres
-    container_name: postgres-restaurante
+    container_name: postgres_restaurante
     environment:
       POSTGRES_PASSWORD: 2005
-      POSTGRES_DB: restarante_db
+      POSTGRES_DB: restaurante_db
       POSTGRES_USER: alejandro
     ports:
       - "5433:5432"

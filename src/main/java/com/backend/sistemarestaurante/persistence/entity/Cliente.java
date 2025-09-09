@@ -29,7 +29,7 @@ public class Cliente {
 
     @Column(name = "email")
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    private String correo;
+    private String email;
 
     @Column(name = "telefono", unique = true, nullable = false)
     @JdbcTypeCode(SqlTypes.VARCHAR)

@@ -24,9 +24,8 @@ WORKDIR /app
 EXPOSE 8080
 
 # Copiar el jar con nombre específico (CORREGIDO)
-COPY --from=builder /app/target/*.jar app.jar
+COPY --from=builder /app/target/app-restaurante.jar /app/app.jar
 
 # Comando para ejecutar la app (CORREGIDO)
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
 

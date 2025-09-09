@@ -1,16 +1,20 @@
 services:
   app-restaurante:
-    image: app-restaurante
-    container_name: app-restaurante-container
+    # image: app-restaurante
+    # container_name: app-restaurante-container
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: app-restaurante-container
     ports:
       - "8080:8080"
     networks:
       - app-restaurante-network
     depends_on:
-      - postgres
+      # - postgres
+      postgres:
+        condition: service_healthy # esepera que postgres este bien para utilizar
+    restart: unless-stopped
 
   postgres:
     image: postgres
@@ -25,6 +29,12 @@ services:
       - app-restaurante-network
     volumes:
       - postgres-volume-restaurante:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alejandro -d restaurante_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
 
 networks:
   app-restaurante-network:

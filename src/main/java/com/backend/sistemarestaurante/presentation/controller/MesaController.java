@@ -5,6 +5,7 @@ import com.backend.sistemarestaurante.service.implementation.MesaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/mesas")
+@PreAuthorize("denyAll()") // Denegar todo el acceso por defecto
 @Controller
 public class MesaController {
 
@@ -22,6 +24,7 @@ public class MesaController {
 
     // Metodo listar mesas
     @GetMapping
+    @PreAuthorize("permitAll()") // Permitir acceso publico a este endpoint
     public ResponseEntity<List<Mesa>> getAll() {
         List<Mesa> listarMesas = mesaService.getAll();
         return ResponseEntity.ok(listarMesas);  // 200 OK
@@ -29,6 +32,7 @@ public class MesaController {
 
     // Metodo buscar mesa por id
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('READ')") // Permitir acceso solo a usuarios con permiso de lectura
     public ResponseEntity<Mesa> getById(@PathVariable Long id) {
         Optional<Mesa> mesaOpt = mesaService.getById(id);
         return mesaOpt.map(ResponseEntity::ok) // 200 OK
@@ -37,6 +41,7 @@ public class MesaController {
 
     // Metodo crear Mesa
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE')")
     public ResponseEntity<Mesa> create(@RequestBody Mesa mesa) {
         Mesa nuevaMesa = mesaService.create(mesa);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaMesa); // 201 Created
@@ -44,6 +49,7 @@ public class MesaController {
 
     // Metodo actualizar Mesa
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('CREATE')")
     public ResponseEntity<Mesa> update(@PathVariable Long id, @RequestBody Mesa mesa) {
         Optional<Mesa> mesaOpt = mesaService.getById(id);
         if (mesaOpt.isPresent()) {
@@ -59,6 +65,7 @@ public class MesaController {
 
     // Metodo eliminar Mesa
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('CREATE')")
     public ResponseEntity<Mesa> delete(@PathVariable Long id){
         Optional<Mesa> mesaOpt = mesaService.getById(id);
         if (mesaOpt.isPresent()){

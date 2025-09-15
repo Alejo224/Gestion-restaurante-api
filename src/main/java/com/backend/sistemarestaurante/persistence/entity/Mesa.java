@@ -22,5 +22,5 @@ public class Mesa {
     
     private String descripcion;
     
-    private boolean estado; // true = disponible, false = ocupada
+    private boolean estado = true; // true = disponible, false = ocupada
 }

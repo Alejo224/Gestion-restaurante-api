@@ -1,6 +1,7 @@
-package com.backend.sistemarestaurante.persistence.entity;
+package com.backend.sistemarestaurante.modules.platos;
 
 
+import com.backend.sistemarestaurante.modules.categoriasPlatos.CategoriaPlato;
 import jakarta.persistence.*;
 import lombok.*;
 

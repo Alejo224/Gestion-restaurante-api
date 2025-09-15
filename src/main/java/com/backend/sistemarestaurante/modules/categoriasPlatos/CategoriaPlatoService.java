@@ -1,7 +1,5 @@
-package com.backend.sistemarestaurante.service.implementation;
+package com.backend.sistemarestaurante.modules.categoriasPlatos;
 
-import com.backend.sistemarestaurante.persistence.entity.CategoriaPlato;
-import com.backend.sistemarestaurante.persistence.repository.CategoriaPlatoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

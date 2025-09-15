@@ -1,6 +1,5 @@
-package com.backend.sistemarestaurante.persistence.repository;
+package com.backend.sistemarestaurante.modules.categoriasPlatos;
 
-import com.backend.sistemarestaurante.persistence.entity.CategoriaPlato;
 import org.springframework.data.repository.CrudRepository;
 
 public interface CategoriaPlatoRepository extends CrudRepository<CategoriaPlato, Long> {

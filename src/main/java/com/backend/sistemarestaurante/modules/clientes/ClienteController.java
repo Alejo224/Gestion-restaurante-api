@@ -1,7 +1,5 @@
-package com.backend.sistemarestaurante.presentation.controller;
+package com.backend.sistemarestaurante.modules.clientes;
 
-import com.backend.sistemarestaurante.persistence.entity.Cliente;
-import com.backend.sistemarestaurante.service.implementation.ClienteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

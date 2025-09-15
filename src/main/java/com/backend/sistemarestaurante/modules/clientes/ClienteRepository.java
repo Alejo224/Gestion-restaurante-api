@@ -1,6 +1,5 @@
-package com.backend.sistemarestaurante.persistence.repository;
+package com.backend.sistemarestaurante.modules.clientes;
 
-import com.backend.sistemarestaurante.persistence.entity.Cliente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

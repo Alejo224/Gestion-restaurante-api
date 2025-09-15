@@ -1,4 +1,4 @@
-package com.backend.sistemarestaurante.persistence.entity;
+package com.backend.sistemarestaurante.modules.mesas;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,6 +1,5 @@
-package com.backend.sistemarestaurante.persistence.repository;
+package com.backend.sistemarestaurante.modules.mesas;
 
-import com.backend.sistemarestaurante.persistence.entity.Mesa;
 import org.springframework.data.repository.CrudRepository;
 
 

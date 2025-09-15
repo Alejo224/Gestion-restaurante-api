@@ -1,7 +1,5 @@
-package com.backend.sistemarestaurante.service.implementation;
+package com.backend.sistemarestaurante.modules.clientes;
 
-import com.backend.sistemarestaurante.persistence.entity.Cliente;
-import com.backend.sistemarestaurante.persistence.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

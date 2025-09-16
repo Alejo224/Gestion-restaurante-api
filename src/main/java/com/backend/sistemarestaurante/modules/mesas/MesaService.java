@@ -1,7 +1,5 @@
-package com.backend.sistemarestaurante.service.implementation;
+package com.backend.sistemarestaurante.modules.mesas;
 
-import com.backend.sistemarestaurante.persistence.entity.Mesa;
-import com.backend.sistemarestaurante.persistence.repository.MesaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

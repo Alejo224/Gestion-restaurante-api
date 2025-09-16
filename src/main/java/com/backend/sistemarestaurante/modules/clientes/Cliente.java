@@ -1,11 +1,10 @@
-package com.backend.sistemarestaurante.persistence.entity;
+package com.backend.sistemarestaurante.modules.clientes;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Getter

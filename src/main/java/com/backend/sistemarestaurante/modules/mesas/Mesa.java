@@ -1,4 +1,4 @@
-package com.backend.sistemarestaurante.persistence.entity;
+package com.backend.sistemarestaurante.modules.mesas;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,5 +22,5 @@ public class Mesa {
     
     private String descripcion;
     
-    private boolean estado; // true = disponible, false = ocupada
+    private boolean estado = true; // true = disponible, false = ocupada
 }

@@ -1,7 +1,5 @@
-package com.backend.sistemarestaurante.presentation.controller;
+package com.backend.sistemarestaurante.modules.mesas;
 
-import com.backend.sistemarestaurante.persistence.entity.Mesa;
-import com.backend.sistemarestaurante.service.implementation.MesaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,7 @@
 package com.backend.sistemarestaurante.modules.categoriasPlatos;
 
 import com.backend.sistemarestaurante.modules.categoriasPlatos.dto.CategoriaPlatoDto;
+import com.backend.sistemarestaurante.modules.categoriasPlatos.dto.CategoriaResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +25,8 @@ public class CategoriaPlatoController {
     // Metodo listar platos
     @GetMapping
     @PreAuthorize("permitAll()") // Permitir acceso publico a este endpoint
-    public ResponseEntity<List<CategoriaPlato>> getAll() {
-        List<CategoriaPlato> categoriasPlatos = categoriaPlatoService.getAll();
+    public ResponseEntity<List<CategoriaResponseDto>> getAll() {
+        List<CategoriaResponseDto> categoriasPlatos = categoriaPlatoService.getAll();
 
         return ResponseEntity.ok(categoriasPlatos); // 200 OK
     }
@@ -33,33 +34,32 @@ public class CategoriaPlatoController {
     // Buscar categoria por id
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<CategoriaPlato> getById(@PathVariable Long id){
+    public ResponseEntity<CategoriaResponseDto> getById(@PathVariable Long id){
 
-        return categoriaPlatoService.getById(id)
-                .map(ResponseEntity::ok) // 200 OK
-                .orElseGet(() -> ResponseEntity.notFound().build()); // 404 Not Found
+        return ResponseEntity.ok(categoriaPlatoService.getById(id));
+
     }
 
     // Crear categoria plato
-    @PostMapping("/create")
+    @PostMapping
     @PreAuthorize("hasAnyAuthority('CREATE')")
-    public ResponseEntity<CategoriaPlato> create(@RequestBody CategoriaPlato categoriaPlato){
-        CategoriaPlato categoriaPlatoNueva = categoriaPlatoService.create(categoriaPlato);
+    public ResponseEntity<CategoriaResponseDto> create(@RequestBody CategoriaPlatoDto categoriaPlatoDto){
+        CategoriaResponseDto categoriaPlatoNueva = categoriaPlatoService.create(categoriaPlatoDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(categoriaPlatoNueva); // 201 Created
     }
 
     // Actualizar categoria plato
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('CREATE')")
-    public ResponseEntity<CategoriaPlato> update(@PathVariable Long id, @RequestBody CategoriaPlatoDto categoriaPlatoDto){
-        CategoriaPlato categoriaPlatoUpdate = categoriaPlatoService.update(categoriaPlatoDto, id);
+    public ResponseEntity<CategoriaResponseDto> update(@PathVariable Long id, @RequestBody CategoriaPlatoDto categoriaPlatoDto){
+        CategoriaResponseDto response = categoriaPlatoService.update(id, categoriaPlatoDto);
 
-        return ResponseEntity.ok(categoriaPlatoUpdate);
+        return ResponseEntity.ok(response);
     }
 
     // Eliminar categoria plato por id
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('CREATE')")
     public ResponseEntity<Void> delete(@PathVariable Long id){
         categoriaPlatoService.delete(id);

@@ -13,19 +13,24 @@ import java.math.BigDecimal;
 
 /**
  * DTO for {@link com.backend.sistemarestaurante.modules.platos.Plato}
+ * Para crear o actualizar un plato con validaciones
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlatoRequestDto {
     @NotBlank(message = "El plato debe tener un nombre")
-    String nombre;
-    String descripcion;
+    private String nombre;
+
+    private String descripcion;
+
     @NotNull(message = "Debe tener un precio")
     @Min(message = "Minimo del precio $2000", value = 2000)
     @Positive(message = "El precio debe ser positvo")
-    BigDecimal precio;
-    Boolean disponible;
-    @NotNull
-    CategoriaPlatoDto categoria;
+    private BigDecimal precio;
+
+    private Boolean disponible = true;
+
+    @NotNull(message = "Debe indicar la categoria")
+    private Long categoriaId;
 }

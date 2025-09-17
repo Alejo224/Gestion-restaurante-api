@@ -21,5 +21,5 @@ public class PlatoResponseDto {
     private String descripcion;
     private BigDecimal precio;
     private Boolean disponible;
-    private String categoriaNombre; // opcional si quieres mostrar el nombre
+    private String categoriaNombre;
 }

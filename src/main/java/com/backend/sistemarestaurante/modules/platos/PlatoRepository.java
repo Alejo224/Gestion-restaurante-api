@@ -8,6 +8,6 @@ import java.util.List;
 public interface PlatoRepository extends JpaRepository<Plato, Long> {
 
     // Query para la categoria
-    List<Plato> findByCategoriaI(Long categoriaId);
+    List<Plato> findByCategoriaId(Long categoriaId);
 
 }

@@ -1,8 +1,12 @@
 package com.backend.sistemarestaurante.modules.platos;
 
+import com.backend.sistemarestaurante.modules.categoriasPlatos.CategoriaPlato;
+import com.backend.sistemarestaurante.modules.categoriasPlatos.CategoriaPlatoRepository;
+import com.backend.sistemarestaurante.modules.categoriasPlatos.dto.CategoriaResponseDto;
 import com.backend.sistemarestaurante.modules.platos.dto.PlatoRequestDto;
 import com.backend.sistemarestaurante.modules.platos.dto.PlatoResponseDto;
 import com.backend.sistemarestaurante.shared.exceptions.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@Transactional
 public class PlatoService {
 
     // Inyección de dependencias y métodos del servicio aquí
@@ -17,6 +22,9 @@ public class PlatoService {
     private PlatoRepository platoRepository;
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private CategoriaPlatoRepository categoriaPlatoRepository;
 
     // Listar todos los platos
     public List<PlatoResponseDto> getAll(){
@@ -41,7 +49,8 @@ public class PlatoService {
     // listar platos por categoria
     public List<PlatoResponseDto> getPlatosPorCategoria(Long id){
         // Guardar los datos por id
-        List<Plato> platos = platoRepository.findByCategoriaI(id);
+        List<Plato> platos = platoRepository.findByCategoriaId(id);
+        // List<CategoriaResponseDto> platos = categoriaPlatoRepository.findById(id);
 
         // Convertir la lista de entidades a lista de DTOs
         return platos.stream()
@@ -51,30 +60,69 @@ public class PlatoService {
 
     // Metodo crear plato
     public PlatoResponseDto create(PlatoRequestDto platoRequestDto){
-        // Convertir el DTO a entidad
-        Plato nuevoPlato = modelMapper.map(platoRequestDto, Plato.class);
+        // 1. Buscar la categoría por ID
+        CategoriaPlato categoria = categoriaPlatoRepository.findById(platoRequestDto.getCategoriaId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Categoría no encontrada con id: " + platoRequestDto.getCategoriaId()
+                ));
 
-        // Guardar el nuevo plato al db
-        nuevoPlato = platoRepository.save(nuevoPlato);
+        // 2. Convertir DTO a Entidad (sin la relación)
+        Plato nuevoPlato = new Plato();
+        nuevoPlato.setNombre(platoRequestDto.getNombre());
+        nuevoPlato.setDescripcion(platoRequestDto.getDescripcion());
+        nuevoPlato.setPrecio(platoRequestDto.getPrecio());
+        nuevoPlato.setDisponible(platoRequestDto.getDisponible());
+        nuevoPlato.setCategoria(categoria); // ← Establecer la relación manualmente
 
-        // Retornar el DTO de respuesta
-        return modelMapper.map(nuevoPlato, PlatoResponseDto.class);
+        // 3. Guardar
+        Plato platoGuardado = platoRepository.save(nuevoPlato);
+
+        // 4. Convertir a Response DTO
+        PlatoResponseDto response = new PlatoResponseDto();
+        response.setId(platoGuardado.getId());
+        response.setNombre(platoGuardado.getNombre());
+        response.setDescripcion(platoGuardado.getDescripcion());
+        response.setPrecio(platoGuardado.getPrecio());
+        response.setDisponible(platoGuardado.getDisponible());
+        response.setCategoriaId(String.valueOf(platoGuardado.getCategoria().getId())); // ← Solo el ID
+
+        return response;
     }
 
     // Metodo actualizar plato
-    public PlatoResponseDto update(PlatoRequestDto platoResquestDto, Long id){
-        // Buscar la entidad por el id
-        Plato plato = platoRepository.findById(id)
+    public PlatoResponseDto update(PlatoRequestDto platoRequestDto, Long id){
+        // 1. Buscar el plato existente
+        Plato platoExistente = platoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Plato no encontrado con id: " + id));
 
-        // Copiar entidad del DTO a la entidad (ignorando el ID)
-        modelMapper.map(platoResquestDto, plato);
+        // 2. Buscar la nueva categoría si es diferente
+        if (!platoExistente.getCategoria().getId().equals(platoRequestDto.getCategoriaId())) {
+            CategoriaPlato nuevaCategoria = categoriaPlatoRepository.findById(platoRequestDto.getCategoriaId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Categoría no encontrada con id: " + platoRequestDto.getCategoriaId()
+                    ));
+            platoExistente.setCategoria(nuevaCategoria);
+        }
 
-        // Guardar (usando la variable correcta: plato)
-        Plato platoActualizado = platoRepository.save(plato);
+        // 3. Actualizar otros campos
+        platoExistente.setNombre(platoRequestDto.getNombre());
+        platoExistente.setDescripcion(platoRequestDto.getDescripcion());
+        platoExistente.setPrecio(platoRequestDto.getPrecio());
+        platoExistente.setDisponible(platoRequestDto.getDisponible());
 
-        // Convertir a DTO de respuesta y retornar
-        return modelMapper.map(platoActualizado, PlatoResponseDto.class);
+        // 4. Guardar
+        Plato platoActualizado = platoRepository.save(platoExistente);
+
+        // 5. Convertir a Response DTO
+        PlatoResponseDto response = new PlatoResponseDto();
+        response.setId(platoActualizado.getId());
+        response.setNombre(platoActualizado.getNombre());
+        response.setDescripcion(platoActualizado.getDescripcion());
+        response.setPrecio(platoActualizado.getPrecio());
+        response.setDisponible(platoActualizado.getDisponible());
+        response.setCategoriaId(String.valueOf(platoActualizado.getCategoria().getId()));
+
+        return response;
     }
 
     // Metodo eliminar plato

@@ -2,6 +2,8 @@ package com.backend.sistemarestaurante.modules.categoriasPlatos;
 
 import com.backend.sistemarestaurante.modules.categoriasPlatos.dto.CategoriaPlatoDto;
 import com.backend.sistemarestaurante.modules.categoriasPlatos.dto.CategoriaResponseDto;
+import com.backend.sistemarestaurante.modules.platos.PlatoService;
+import com.backend.sistemarestaurante.modules.platos.dto.PlatoResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,9 @@ public class CategoriaPlatoController {
     // Inteccion de dependencia
     @Autowired
     private CategoriaPlatoService categoriaPlatoService;
+    
+    @Autowired
+    private PlatoService platoService;
 
     // Metodo listar platos
     @GetMapping
@@ -65,6 +70,15 @@ public class CategoriaPlatoController {
         categoriaPlatoService.delete(id);
 
         return ResponseEntity.noContent().build();
+    }
+    
+    // Listar platos por categorias
+    @GetMapping("{id}/platos")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<List<PlatoResponseDto>> getPlatosPorCategoria(@PathVariable Long id){
+        List<PlatoResponseDto> platos = platoService.getPlatosPorCategoria(id);
+
+        return ResponseEntity.ok(platos);   //200 OK
     }
 
 }

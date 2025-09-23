@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 /**
  * DTO for {@link com.backend.sistemarestaurante.modules.platos.Plato}
- * Respuesta para el cliente
+ * Respuesta para el usuario
  */
 @Data
 @AllArgsConstructor

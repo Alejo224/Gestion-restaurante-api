@@ -1,4 +1,4 @@
-package com.backend.sistemarestaurante.modules.clientes;
+package com.backend.sistemarestaurante.modules.usuarios;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "cliente")
-public class Cliente {
+@Table(name = "usuario")
+public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

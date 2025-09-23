@@ -44,7 +44,7 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "/api/mesas").permitAll();
 
                     // Configurar los endpoints privados
-                    http.requestMatchers(HttpMethod.GET, "/api/clientes").hasAuthority("READ"); //Permiso de lectura
+                    http.requestMatchers(HttpMethod.GET, "/api/usuarios").hasAuthority("READ"); //Permiso de lectura
 
                     // Configurar el resto de endpoint - NO ESPECIFICADOS
                     http.anyRequest().denyAll();

@@ -2,6 +2,7 @@ services:
   app-restaurante:
     # image: app-restaurante
     # container_name: app-restaurante-container
+    image: alejo224j/sistemarestaurante-api:latest # Usar la imagen de Docker Hub
     build:
       context: .
       dockerfile: Dockerfile
@@ -16,10 +17,10 @@ services:
         condition: service_healthy # esepera que postgres este bien para utilizar
     restart: unless-stopped
     volumes:
-      - ./:/app  # Monta el codigo actual
+      - ./:/app # Monta el codigo actual
       # - m2-cache:/app/.m2  # Monta la cache de Maven
     working_dir: /app
-    command: ./mvnw spring-boot:run  # Comando para iniciar la aplicacion
+    command: ./mvnw spring-boot:run # Comando para iniciar la aplicacion
 
   postgres:
     image: postgres
@@ -45,4 +46,4 @@ networks:
   app-restaurante-network:
 volumes:
   postgres-volume-restaurante:
-  m2-cache:   #cache persistente de maven
+  m2-cache: #cache persistente de maven

@@ -1,15 +1,17 @@
 package com.backend.sistemarestaurante.modules.usuarios;
 
+import com.backend.sistemarestaurante.modules.Roles.RoleEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
 @Entity
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "usuario")
@@ -19,21 +21,34 @@ public class Usuario {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "nombre")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    private String nombre;
+    @Column(name = "nombreCompleto")
+    private String nombreCompleto;
 
-    @Column(name = "apellido")
-    private String apellido;
-
-    @Column(name = "email")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
+    private String password;
+
     @Column(name = "telefono", unique = true, nullable = false)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     private String telefono;
 
-    @Column(name="byrth_date")
-    private LocalDateTime fechaNacimiento;
+    // Variables que se necesitan para el sprint security
+    @Column(name= "is_enable")
+    private boolean isEnable;
+
+    @Column(name= "is_AccountNonExpired")
+    private boolean isAccountNonExpired;
+
+    @Column(name= "is_AccountNonLocked")
+    private boolean isAccountNonLocked;
+
+    @Column(name= "is_CredentialsNonExpired")
+    private boolean isCredentialsNonExpired;
+
+    // Relacion unidereccional con la tabla roles
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "usuario_roles", joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<RoleEntity>  roles = new HashSet<>();
+
 }

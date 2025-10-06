@@ -25,3 +25,9 @@ cd Gestion-restaurante-api
 El siguiente enlace habra unas secuencias de pasos para descargar la imagen y ejecutar los contenedores.
 
 - [Descargar aqui](https://hub.docker.com/r/alejo224j/sistemarestaurante-api)
+
+---
+
+### 3. Poder trabajar en el repositorio
+- [buenas practicas git](https://github.com/Alejo224/Inmobilaria/tree/buenas-practicas)
+

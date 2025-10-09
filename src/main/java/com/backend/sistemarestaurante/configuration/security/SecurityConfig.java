@@ -1,5 +1,6 @@
 package com.backend.sistemarestaurante.configuration.security;
 
+import com.backend.sistemarestaurante.modules.usuarios.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,26 +14,24 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.ArrayList;
-import java.util.List;
 
 // Anotaciones
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+    // inyectar UserDetailService
+    @Autowired
+    private UserDetailServiceImpl userDetailService;
+
     // Configuraciones de seguridad se implementaran aqui
 
     // Configurar el filter chain (configuraciones personalizadas)
-    /*@Bean
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
@@ -40,18 +39,31 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
-                    // Configurara los endpoints publicos
-                    http.requestMatchers(HttpMethod.GET, "/api/mesas").permitAll();
+                    // Endpoints publicos
+                    http.requestMatchers("/auth/**").permitAll();  // Login, registro
+                    http.requestMatchers(HttpMethod.GET ,"/api/platos").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/platos/{id}").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/categoriasPlatos").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/categoriasPlatos/{id}").permitAll();
 
-                    // Configurar los endpoints privados
-                    http.requestMatchers(HttpMethod.GET, "/api/usuarios").hasAuthority("READ"); //Permiso de lectura
+                    //  ADMIN
+                    http.requestMatchers(HttpMethod.POST, "/api/platos").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.PUT, "/api/platos/{id}").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.DELETE, "/api/platos/{id}").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.POST, "/api/categoriasPlatos").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.PUT, "/api/categoriasPlatos/{id}").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.DELETE, "/api/categoriasPlatos/{id}").hasRole("ADMIN");
 
-                    // Configurar el resto de endpoint - NO ESPECIFICADOS
-                    http.anyRequest().denyAll();
+                    // Configurar el resto de endpoint - Requieren autenticación
+                    http.anyRequest().authenticated();
+
+
                 })
+                .authenticationProvider(authenticationProvider())  // CONECTAR provide
                 .build();
-    }*/
+    }
 
+    /*
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
@@ -61,6 +73,8 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
+    */
+
     // Configurar AuthenticationManager
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -72,27 +86,8 @@ public class SecurityConfig {
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider provieder = new DaoAuthenticationProvider();
         provieder.setPasswordEncoder(passwordEncoder());
-        provieder.setUserDetailsService(userDetailsService());
+        provieder.setUserDetailsService(userDetailService);
         return provieder;
-    }
-    // definir usuarios en memoria
-    @Bean
-    public UserDetailsService userDetailsService(){
-        List<UserDetails> userDetailsList = new ArrayList<>();
-
-        userDetailsList.add(User.withUsername("burger")
-                .password("123")
-                .roles("ADMIN")
-                .authorities("READ", "CREATE")
-                .build());
-
-        userDetailsList.add(User.withUsername("alejandro")
-                .password("123")
-                .roles("ADMIN")
-                .authorities("READ")
-                .build());
-
-        return new InMemoryUserDetailsManager(userDetailsList);
     }
 
     // Configuracion de los componenetes, PasswordEncoder y UserDetailsService

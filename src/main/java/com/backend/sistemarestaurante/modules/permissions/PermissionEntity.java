@@ -17,5 +17,5 @@ public class PermissionEntity {
     private Long id;
     // No se puede repetir el nombre de permisos, no se puede actualizar y no puede ser nulo
     @Column(unique = true, nullable = false, updatable = false)
-    private String name;
+    private String nombre;
 }

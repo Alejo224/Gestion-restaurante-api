@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,7 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 // Anotaciones
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     // inyectar UserDetailService
     @Autowired
@@ -41,6 +42,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(http -> {
                     // Endpoints publicos
                     http.requestMatchers("/auth/**").permitAll();  // Login, registro
+                    http.requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll();
+
                     http.requestMatchers(HttpMethod.GET ,"/api/platos").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/platos/{id}").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/categoriasPlatos").permitAll();
@@ -93,7 +96,7 @@ public class SecurityConfig {
     // Configuracion de los componenetes, PasswordEncoder y UserDetailsService
     @Bean
     public PasswordEncoder passwordEncoder(){
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 
 }

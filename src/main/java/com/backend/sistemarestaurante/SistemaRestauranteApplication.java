@@ -2,6 +2,7 @@ package com.backend.sistemarestaurante;
 
 import com.backend.sistemarestaurante.modules.Roles.RoleEntity;
 import com.backend.sistemarestaurante.modules.Roles.RoleEnum;
+import com.backend.sistemarestaurante.modules.Roles.RoleRepository;
 import com.backend.sistemarestaurante.modules.permissions.PermissionEntity;
 import com.backend.sistemarestaurante.modules.usuarios.Usuario;
 import com.backend.sistemarestaurante.modules.usuarios.UsuarioRepository;
@@ -26,7 +27,7 @@ public class SistemaRestauranteApplication {
     * */
 
     @Bean
-    CommandLineRunner init(UsuarioRepository usuarioRepository) {
+    CommandLineRunner init(UsuarioRepository usuarioRepository,  RoleRepository roleRepository) {
         return args -> {
             /* CREATE PERMISSIONS*/
             PermissionEntity createPermission = PermissionEntity.builder()
@@ -73,7 +74,12 @@ public class SistemaRestauranteApplication {
                     .permissionSet(Set.of(readPermission))
                     .build();
 
-            /* Create USERS*/
+            // ✅ GUARDAR ROLES EN BD PRIMERO (ESTO FALTABA)
+            List<RoleEntity> rolesGuardados = roleRepository.saveAll(List.of(roleAdmin, roleUser, roleInvited));
+            System.out.println("✅ Roles guardados en BD: " + rolesGuardados.size());
+
+            /*
+            //Create USERS
             Usuario usuarioAdmin = Usuario.builder()
                     .email("admin@gmail.com")
                     .password("1234")
@@ -99,6 +105,7 @@ public class SistemaRestauranteApplication {
                     .build();
 
             usuarioRepository.saveAll(List.of(usuarioAdmin, usuarioCliente));
+            */
 
         };
     }

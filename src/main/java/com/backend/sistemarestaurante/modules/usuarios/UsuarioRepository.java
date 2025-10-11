@@ -21,6 +21,15 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByEmail(String email);
 
     /**
+     * Verifica si existe un usuario con el correo electrónico dado.
+     *
+     * @param telefono a verificar.
+     * @return true si el telefono ya está registrado, false en caso contrario.
+     */
+
+    boolean existsByTelefono(String telefono);
+
+    /**
      * Busca un usuario por su correo electrónico.
      *
      * @param email Correo electrónico a buscar.

@@ -3,8 +3,6 @@ package com.backend.sistemarestaurante.modules.usuarios.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import javax.naming.Context;
-
 public class PasswordValidator implements ConstraintValidator<ValidPassword, String> {
 
     @Override
@@ -14,29 +12,50 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Str
             return false;
         }
 
-        // Verificar cada criterio
+        // Verificar cada criterio individualmente
         if (password.length() < 8) {
             setCustomMessage(context, "La contraseña debe tener al menos 8 caracteres");
             return false;
         }
-        if (!password.matches(".*[A-Z].*")) {
+        if (!containsUppercase(password)) {
             setCustomMessage(context, "La contraseña debe contener al menos una letra mayúscula");
             return false;
         }
-        if (!password.matches(".*[a-z].*")) {
+        if (!containsLowercase(password)) {
             setCustomMessage(context, "La contraseña debe contener al menos una letra minúscula");
             return false;
         }
-        if (!password.matches(".*[0-9].*")) {
+        if (!containsDigit(password)) {
             setCustomMessage(context, "La contraseña debe contener al menos un número");
             return false;
         }
-        if (!password.matches(".*[!#$%&()*^?/@+=<>_-~{}].*")) {
-            setCustomMessage(context, "La contraseña debe contener al menos un carácter especial: ! # $ % & ( ) * ^ ? / @ + = < > _ - ~ { }");
+        if (!containsSpecialCharacter(password)) {
+            setCustomMessage(context, "La contraseña debe contener al menos un carácter especial: ! @ # $ % ^ & * ( ) _ + - = [ ] { } ; ' : \" | , . < > / ?");
             return false;
         }
 
         return true;
+    }
+
+    // Verificar si almenos hay una mayuscula
+    private boolean containsUppercase(String password) {
+        return password.chars().anyMatch(Character::isUpperCase);
+    }
+
+    // Verificar si almenos hay una minuscula
+    private boolean containsLowercase(String password) {
+        return password.chars().anyMatch(Character::isLowerCase);
+    }
+
+    // Verificar si almenos hay un digito
+    private boolean containsDigit(String password) {
+        return password.chars().anyMatch(Character::isDigit);
+    }
+
+    // Verificar si almenos hay un caracter especial
+    private boolean containsSpecialCharacter(String password) {
+        String specialChars = "!@#$%^&*()_+-=[]{};':\"|,.<>/?";
+        return password.chars().anyMatch(ch -> specialChars.indexOf(ch) >= 0);
     }
 
     private void setCustomMessage(ConstraintValidatorContext context, String message) {

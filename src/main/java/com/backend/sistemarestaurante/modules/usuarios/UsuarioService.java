@@ -1,9 +1,20 @@
 package com.backend.sistemarestaurante.modules.usuarios;
 
+import com.backend.sistemarestaurante.modules.Roles.RoleEntity;
+import com.backend.sistemarestaurante.modules.Roles.RoleEnum;
+import com.backend.sistemarestaurante.modules.Roles.RoleRepository;
+import com.backend.sistemarestaurante.modules.usuarios.dto.UsuarioRequestDto;
+import com.backend.sistemarestaurante.modules.usuarios.dto.UsuarioResponseDto;
+import com.backend.sistemarestaurante.shared.exceptions.DuplicateEmailException;
+import com.backend.sistemarestaurante.shared.exceptions.DuplicateTelefonoException;
+import com.backend.sistemarestaurante.shared.exceptions.InvalidPasswordException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * La clase `UsuarioService` proporciona los servicios para la gestión de usuarios en la aplicación.
@@ -15,14 +26,56 @@ import java.util.List;
  */
 @Service
 public class UsuarioService {
-    // Inyectar el repositorio de usuarios y el model mapper
+    /*
+        *Inyectar el repositorio de usuarios y el model mapper
+        * para convertir entre entidades y DTOs
+        * Encriptar la contraseña del usuario
+        * Inyectar el repository de RoleEntity
+     */
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
     // metodo crear usuario
-    public Usuario create(Usuario usuario){
-        //Guardar usuario a la base de datos
-        return usuarioRepository.save(usuario);
+    public UsuarioResponseDto registrarUsuario(UsuarioRequestDto requestDto){
+        // validar que el email no este registrado
+        if (usuarioRepository.existsByEmail(requestDto.getEmail())){
+            throw new DuplicateEmailException("El email ya está registrado");
+        }
+
+        // validar que el telefono no exista
+        if (usuarioRepository.existsByTelefono(requestDto.getTelefono())){
+            throw new DuplicateTelefonoException("El telefono ya está registrado");
+        }
+
+        // OBTENER ROL USER POR DEFECTO
+        RoleEntity rolUSer = roleRepository.findByRoleEnum(RoleEnum.USER)
+                .orElseThrow(() -> new IllegalArgumentException("El rol por defecto no existe"));
+
+        // convertir dto a entidad utilizando Model Mapper
+        Usuario usuario = modelMapper.map(requestDto, Usuario.class);
+
+        // codificar contraseña
+        usuario.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+
+        // configuracion de seguridad por default
+        configurarSeguridadPorDefecto(usuario);
+
+        // Asignar rol por default
+        usuario.setRoles(Set.of(rolUSer));
+
+        // Guardar usuario en la base de datos
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+
+        return modelMapper.map(usuarioGuardado, UsuarioResponseDto.class);
     }
 
     // metodo obtener usuario por id
@@ -41,5 +94,28 @@ public class UsuarioService {
     public void delete(Long id){
         //Eliminar usuario por id
         usuarioRepository.deleteById(id);
+    }
+
+    // metodo para la confifuracion de seguridad por defecto para usuario
+    private void configurarSeguridadPorDefecto(Usuario usuario) {
+        usuario.setEnable(true);
+        usuario.setAccountNonExpired(true);
+        usuario.setAccountNonLocked(true);
+        usuario.setCredentialsNonExpired(true);
+    }
+
+    private void validarPassword(String password) {
+        if (password.length() < 8) {
+            throw new InvalidPasswordException("La contraseña debe tener minimo 5 caracteres.");
+        }
+        if (!password.matches(".*[A-Z].*")) {
+            throw new InvalidPasswordException("The password debe tener almenos una letra en mayuscula ");
+        }
+        if (!password.matches(".*[0-9].*")) {
+            throw new InvalidPasswordException("The passord should have almost one number.");
+        }
+        if (!password.matches(".*[!#$%&()*^].*")) {
+            throw new InvalidPasswordException("The password should have almost one special charater");
+        }
     }
 }

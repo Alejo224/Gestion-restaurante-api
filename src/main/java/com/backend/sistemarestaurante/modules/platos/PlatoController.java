@@ -13,8 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/platos")
-@PreAuthorize("denyAll()")  // Denegar todo el acceso por defecto
-@Controller
+@PreAuthorize("isAuthenticated()") // protección por defecto
 public class PlatoController {
 
     // inyeccion de dependencias
@@ -43,17 +42,17 @@ public class PlatoController {
 
     // Crear plato
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('CREATE')") // Solo usuarios con rol ADMIN pueden crear platos
+    @PreAuthorize("hasRole('ADMIN')") // Solo usuarios con rol ADMIN pueden crear platos
     public ResponseEntity<PlatoResponseDto> create(@RequestBody PlatoRequestDto platoRequestDto){
         // Crear el nuevo plato
         PlatoResponseDto nuevoPlato = platoService.create(platoRequestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPlato); // 2001 CREATED
     }
-    
+
     // actualizar plato por id
     @PutMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('CREATE')") // solo usuarios con el rol ADMIN pueden actualizar platos
+    @PreAuthorize("hasRole('ADMIN')") // solo usuarios con el rol ADMIN pueden actualizar platos
     public ResponseEntity<PlatoResponseDto> update(@PathVariable Long id, @RequestBody PlatoRequestDto platoRequestDto){
         PlatoResponseDto response = platoService.update(platoRequestDto, id);
 
@@ -61,8 +60,8 @@ public class PlatoController {
     }
 
     // Eliminar plato por id
-    @DeleteMapping("{di}")
-    @PreAuthorize("hasAnyAuthority('CREATE')")
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id){
         platoService.delete(id);
 

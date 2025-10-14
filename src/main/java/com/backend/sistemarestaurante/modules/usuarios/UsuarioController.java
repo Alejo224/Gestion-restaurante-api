@@ -1,5 +1,7 @@
 package com.backend.sistemarestaurante.modules.usuarios;
 
+import com.backend.sistemarestaurante.modules.usuarios.dto.LoginRequestDto;
+import com.backend.sistemarestaurante.modules.usuarios.dto.LoginResponseDto;
 import com.backend.sistemarestaurante.modules.usuarios.dto.UsuarioRequestDto;
 import com.backend.sistemarestaurante.modules.usuarios.dto.UsuarioResponseDto;
 import jakarta.validation.Valid;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controlador REST para la gestión de usuarios.
@@ -42,4 +45,17 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+    // login
+    @PostMapping("/login")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequest) {
+        try {
+            LoginResponseDto response = usuarioService.login(loginRequest);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
+        }
+
+    }
 }

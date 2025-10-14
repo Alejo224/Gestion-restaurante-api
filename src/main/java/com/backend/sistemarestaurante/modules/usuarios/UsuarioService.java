@@ -3,6 +3,8 @@ package com.backend.sistemarestaurante.modules.usuarios;
 import com.backend.sistemarestaurante.modules.Roles.RoleEntity;
 import com.backend.sistemarestaurante.modules.Roles.RoleEnum;
 import com.backend.sistemarestaurante.modules.Roles.RoleRepository;
+import com.backend.sistemarestaurante.modules.usuarios.dto.LoginRequestDto;
+import com.backend.sistemarestaurante.modules.usuarios.dto.LoginResponseDto;
 import com.backend.sistemarestaurante.modules.usuarios.dto.UsuarioRequestDto;
 import com.backend.sistemarestaurante.modules.usuarios.dto.UsuarioResponseDto;
 import com.backend.sistemarestaurante.shared.exceptions.DuplicateEmailException;
@@ -10,6 +12,10 @@ import com.backend.sistemarestaurante.shared.exceptions.DuplicateTelefonoExcepti
 import com.backend.sistemarestaurante.shared.exceptions.InvalidPasswordException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +50,9 @@ public class UsuarioService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
     // metodo crear usuario
     public UsuarioResponseDto registrarUsuario(UsuarioRequestDto requestDto){
         // validar que el email no este registrado
@@ -76,6 +85,33 @@ public class UsuarioService {
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
         return modelMapper.map(usuarioGuardado, UsuarioResponseDto.class);
+    }
+
+    // Metodo para logiarse
+    public LoginResponseDto login(LoginRequestDto loginRequest){
+        try {
+            // Autenticar al usuario
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
+
+            // Si llega aqui, la autenticacion fue exitosa
+            Usuario usuario = usuarioRepository.findUsuarioByEmail(loginRequest.getEmail())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            return new LoginResponseDto(
+                    "Inicio de sesion exitoso",
+                    usuario.getNombreCompleto(),
+                    usuario.getEmail(),
+                    usuario.getTelefono(),
+                    usuario.getRoles()
+            );
+        } catch (BadCredentialsException e) {
+            throw new RuntimeException("Credenciales incorrectas");
+        }
     }
 
     // metodo obtener usuario por id

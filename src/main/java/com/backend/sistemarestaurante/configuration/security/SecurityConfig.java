@@ -49,6 +49,7 @@ public class SecurityConfig {
                     // Endpoints publicos
                     http.requestMatchers("/auth/**").permitAll();  // Login, registro
                     http.requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/api/usuarios/login").permitAll();
 
                     http.requestMatchers(HttpMethod.GET ,"/api/platos").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/platos/{id}").permitAll();

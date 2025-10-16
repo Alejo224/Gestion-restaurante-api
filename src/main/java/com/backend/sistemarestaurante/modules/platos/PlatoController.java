@@ -2,13 +2,14 @@ package com.backend.sistemarestaurante.modules.platos;
 
 import com.backend.sistemarestaurante.modules.platos.dto.PlatoRequestDto;
 import com.backend.sistemarestaurante.modules.platos.dto.PlatoResponseDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
@@ -19,6 +20,8 @@ public class PlatoController {
     // inyeccion de dependencias
     @Autowired
     private PlatoService platoService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Controlador listar platos
     @GetMapping
@@ -40,25 +43,57 @@ public class PlatoController {
         return ResponseEntity.ok(platoService.getById(id));
     }
 
-    // Crear plato
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')") // Solo usuarios con rol ADMIN pueden crear platos
-    public ResponseEntity<PlatoResponseDto> create(@RequestBody PlatoRequestDto platoRequestDto){
-        // Crear el nuevo plato
-        PlatoResponseDto nuevoPlato = platoService.create(platoRequestDto);
+    // CREAR PLATO CON IMAGEN
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PlatoResponseDto> crearPlato(
+            @RequestPart("plato") String platoRequestJson,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPlato); // 2001 CREATED
+        try {
+            // LIMPIAR el JSON - eliminar caracteres inválidos
+            String jsonLimpio = platoRequestJson
+                    .replace("?", "")  // Eliminar caracteres ?
+                    .replace("\uFEFF", "") // Eliminar BOM si existe
+                    .trim();
+
+            System.out.println("JSON recibido: " + platoRequestJson);
+            System.out.println("JSON limpio: " + jsonLimpio);
+
+            // Convertir JSON limpio a objeto
+            ObjectMapper objectMapper = new ObjectMapper();
+            PlatoRequestDto platoRequest = objectMapper.readValue(jsonLimpio, PlatoRequestDto.class);
+
+            PlatoResponseDto platoCreado = platoService.crearPlatoConImagen(platoRequest, imagen);
+            return ResponseEntity.status(HttpStatus.CREATED).body(platoCreado);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    // actualizar plato por id
-    @PutMapping("{id}")
-    @PreAuthorize("hasRole('ADMIN')") // solo usuarios con el rol ADMIN pueden actualizar platos
-    public ResponseEntity<PlatoResponseDto> update(@PathVariable Long id, @RequestBody PlatoRequestDto platoRequestDto){
-        PlatoResponseDto response = platoService.update(platoRequestDto, id);
+    // ACTUALIZAR PLATO COMPLETO (datos + imagen opcional)
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PlatoResponseDto> actualizarPlato(
+            @PathVariable Long id,
+            @RequestPart("plato") String platoRequestJson,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
 
-        return ResponseEntity.ok().body(response);
+        try {
+            // Convertir JSON a DTO
+            ObjectMapper objectMapper = new ObjectMapper();
+            PlatoRequestDto platoRequest = objectMapper.readValue(platoRequestJson, PlatoRequestDto.class);
+
+            PlatoResponseDto platoActualizado = platoService.actualizarPlato(id, platoRequest, imagen);
+            return ResponseEntity.ok(platoActualizado);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
-
     // Eliminar plato por id
     @DeleteMapping("{id}")
     @PreAuthorize("hasRole('ADMIN')")

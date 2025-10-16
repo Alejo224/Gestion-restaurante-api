@@ -41,6 +41,8 @@ public class Plato {
     @Column(nullable = false)
     private Boolean disponible = true;
 
+    private String imagenUrl;
+
     /** Relación MUCHOS a UNO con CategoriaPlato
      @JoinColumn define el nombre de la columna FK en la tabla 'plato'
      */

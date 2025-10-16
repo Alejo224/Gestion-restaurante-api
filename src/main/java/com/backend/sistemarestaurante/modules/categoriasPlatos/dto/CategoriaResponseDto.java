@@ -1,5 +1,6 @@
 package com.backend.sistemarestaurante.modules.categoriasPlatos.dto;
 
+import com.backend.sistemarestaurante.modules.categoriasPlatos.CategoriaPlato;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -19,6 +19,7 @@ services:
     volumes:
       - ./:/app # Monta el codigo actual
       # - m2-cache:/app/.m2  # Monta la cache de Maven
+      - restaurante_uploads:/app/uploads #Volumen para imagenes
     working_dir: /app
     command: ./mvnw spring-boot:run # Comando para iniciar la aplicacion
 
@@ -47,3 +48,4 @@ networks:
 volumes:
   postgres-volume-restaurante:
   m2-cache: #cache persistente de maven
+  restaurante_uploads:

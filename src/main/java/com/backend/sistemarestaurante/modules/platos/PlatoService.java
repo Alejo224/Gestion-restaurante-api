@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,6 +26,9 @@ public class PlatoService {
 
     @Autowired
     private CategoriaPlatoRepository categoriaPlatoRepository;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     // Listar todos los platos
     public List<PlatoResponseDto> getAll(){
@@ -58,73 +62,73 @@ public class PlatoService {
                 .toList();
     }
 
-    // Metodo crear plato
-    public PlatoResponseDto create(PlatoRequestDto platoRequestDto){
-        // 1. Buscar la categoría por ID
-        CategoriaPlato categoria = categoriaPlatoRepository.findById(platoRequestDto.getCategoriaId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Categoría no encontrada con id: " + platoRequestDto.getCategoriaId()
-                ));
 
-        // 2. Convertir DTO a Entidad (sin la relación)
-        Plato nuevoPlato = new Plato();
-        nuevoPlato.setNombre(platoRequestDto.getNombre());
-        nuevoPlato.setDescripcion(platoRequestDto.getDescripcion());
-        nuevoPlato.setPrecio(platoRequestDto.getPrecio());
-        nuevoPlato.setDisponible(platoRequestDto.getDisponible());
-        nuevoPlato.setCategoria(categoria); // ← Establecer la relación manualmente
+    // MÉTODO CORREGIDO PARA CREAR PLATO CON IMAGEN
+    public PlatoResponseDto crearPlatoConImagen(PlatoRequestDto platoRequest, MultipartFile imagen) {
+        try {
+            // 1. Convertir el DTO a entidad (solo datos básicos)
+            Plato plato = modelMapper.map(platoRequest, Plato.class);
+            plato.setId(null);
 
-        // 3. Guardar
-        Plato platoGuardado = platoRepository.save(nuevoPlato);
+            // 2. BUSCAR Y ASIGNAR LA CATEGORÍA COMPLETA MANUALMENTE
+            CategoriaPlato categoria = categoriaPlatoRepository.findById(platoRequest.getCategoriaId())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + platoRequest.getCategoriaId()));
+            plato.setCategoria(categoria);  // Asignar objeto completo, no solo ID
 
-        // 4. Convertir a Response DTO
-        PlatoResponseDto response = new PlatoResponseDto();
-        response.setId(platoGuardado.getId());
-        response.setNombre(platoGuardado.getNombre());
-        response.setDescripcion(platoGuardado.getDescripcion());
-        response.setPrecio(platoGuardado.getPrecio());
-        response.setDisponible(platoGuardado.getDisponible());
-        response.setCategoriaId(String.valueOf(platoGuardado.getCategoria().getId())); // ← Solo el ID
+            // 3. Guardar el plato en la base de datos primero (para generar el ID)
+            Plato platoGuardado = platoRepository.save(plato);
 
-        return response;
-    }
+            // 4. Si hay imagen, guardarla físicamente y actualizar la ruta
+            if (imagen != null && !imagen.isEmpty()) {
+                String rutaImagen = fileStorageService.guardarImagen(imagen, platoGuardado.getId());
+                platoGuardado.setImagenUrl(rutaImagen);
+                platoGuardado = platoRepository.save(platoGuardado);
+            }
 
-    // Metodo actualizar plato
-    public PlatoResponseDto update(PlatoRequestDto platoRequestDto, Long id){
-        // 1. Buscar el plato existente
-        Plato platoExistente = platoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Plato no encontrado con id: " + id));
+            // 5. Convertir a DTO de respuesta
+            return modelMapper.map(platoGuardado, PlatoResponseDto.class);
 
-        // 2. Buscar la nueva categoría si es diferente
-        if (!platoExistente.getCategoria().getId().equals(platoRequestDto.getCategoriaId())) {
-            CategoriaPlato nuevaCategoria = categoriaPlatoRepository.findById(platoRequestDto.getCategoriaId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Categoría no encontrada con id: " + platoRequestDto.getCategoriaId()
-                    ));
-            platoExistente.setCategoria(nuevaCategoria);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al procesar el plato: " + e.getMessage(), e);
         }
-
-        // 3. Actualizar otros campos
-        platoExistente.setNombre(platoRequestDto.getNombre());
-        platoExistente.setDescripcion(platoRequestDto.getDescripcion());
-        platoExistente.setPrecio(platoRequestDto.getPrecio());
-        platoExistente.setDisponible(platoRequestDto.getDisponible());
-
-        // 4. Guardar
-        Plato platoActualizado = platoRepository.save(platoExistente);
-
-        // 5. Convertir a Response DTO
-        PlatoResponseDto response = new PlatoResponseDto();
-        response.setId(platoActualizado.getId());
-        response.setNombre(platoActualizado.getNombre());
-        response.setDescripcion(platoActualizado.getDescripcion());
-        response.setPrecio(platoActualizado.getPrecio());
-        response.setDisponible(platoActualizado.getDisponible());
-        response.setCategoriaId(String.valueOf(platoActualizado.getCategoria().getId()));
-
-        return response;
     }
 
+    // MÉTODO PARA ACTUALIZAR PLATO (con o sin imagen)
+    public PlatoResponseDto actualizarPlato(Long id, PlatoRequestDto platoRequest, MultipartFile imagen) {
+        try {
+            // 1. Buscar plato existente
+            Plato platoExistente = platoRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Plato no encontrado con ID: " + id));
+
+            // 2. Actualizar datos básicos
+            platoExistente.setNombre(platoRequest.getNombre());
+            platoExistente.setDescripcion(platoRequest.getDescripcion());
+            platoExistente.setPrecio(platoRequest.getPrecio());
+            platoExistente.setDisponible(platoRequest.getDisponible());
+
+            // 3. Actualizar categoría si es diferente
+            if (!platoExistente.getCategoria().getId().equals(platoRequest.getCategoriaId())) {
+                CategoriaPlato nuevaCategoria = categoriaPlatoRepository.findById(platoRequest.getCategoriaId())
+                        .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                platoExistente.setCategoria(nuevaCategoria);
+            }
+
+            // 4. Manejar imagen (opcional)
+            if (imagen != null && !imagen.isEmpty()) {
+                String nuevaRutaImagen = fileStorageService.guardarImagen(imagen, id);
+                platoExistente.setImagenUrl(nuevaRutaImagen);
+            }
+
+            // 5. Guardar cambios
+            Plato platoActualizado = platoRepository.save(platoExistente);
+
+            // 6. Convertir a DTO de respuesta
+            return modelMapper.map(platoActualizado, PlatoResponseDto.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar el plato: " + e.getMessage(), e);
+        }
+    }
     // Metodo eliminar plato
     public void delete(Long id){
         // Buscar el plato por id o lanzar excepcion si no existe

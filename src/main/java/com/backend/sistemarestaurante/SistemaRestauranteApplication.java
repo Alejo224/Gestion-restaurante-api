@@ -82,19 +82,19 @@ public class SistemaRestauranteApplication {
             //Create USERS
             Usuario usuarioAdmin = Usuario.builder()
                     .email("admin@gmail.com")
-                    .password("1234")
+                    .password("1234F@mi99")
                     .isEnable(true)
                     .isAccountNonExpired(true)
                     .isAccountNonLocked(true)
                     .isCredentialsNonExpired(true)
                     .roles(Set.of(roleAdmin))
-                    .telefono("32909212")
+                    .telefono("898937182783")
                     .nombreCompleto("admin")
                     .build();
 
             Usuario usuarioCliente = Usuario.builder()
                     .email("cliente@gmail.com")
-                    .password("1234")
+                    .password("12341234F@mi99")
                     .isEnable(true)
                     .isAccountNonExpired(true)
                     .isAccountNonLocked(true)
@@ -105,7 +105,7 @@ public class SistemaRestauranteApplication {
                     .build();
 
             usuarioRepository.saveAll(List.of(usuarioAdmin, usuarioCliente));
-            */
+             */
 
         };
     }

@@ -55,9 +55,10 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "/api/platos/{id}").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/categoriasPlatos").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/categoriasPlatos/{id}").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "api/categoriasPlatos/{id}/platos").permitAll();
 
                     //  ADMIN
-                    http.requestMatchers(HttpMethod.POST, "/api/platos").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.POST, "/api/platos/imagen").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.PUT, "/api/platos/{id}").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "/api/platos/{id}").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.POST, "/api/categoriasPlatos").hasRole("ADMIN");

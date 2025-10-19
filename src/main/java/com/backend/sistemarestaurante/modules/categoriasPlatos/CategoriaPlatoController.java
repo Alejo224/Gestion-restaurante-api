@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/categoriasPlatos")
-@PreAuthorize("isAuthenticated()") // protección por defecto
+//@PreAuthorize("isAuthenticated()") // protección por defecto
 public class CategoriaPlatoController {
 
     // Inteccion de dependencia
@@ -46,7 +46,7 @@ public class CategoriaPlatoController {
 
     // Crear categoria plato
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')") // Solo usuarios con rol ADMIN pueden crear categorias
+    @PreAuthorize("permitAll()") // Solo usuarios con rol ADMIN pueden crear categorias
     public ResponseEntity<CategoriaResponseDto> create(@RequestBody CategoriaPlatoDto categoriaPlatoDto){
         CategoriaResponseDto categoriaPlatoNueva = categoriaPlatoService.create(categoriaPlatoDto);
 
@@ -55,7 +55,7 @@ public class CategoriaPlatoController {
 
     // Actualizar categoria plato
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')") // Solo usuarios con rol ADMIN pueden crear categorias
+    @PreAuthorize("permitAll()") // Solo usuarios con rol ADMIN pueden crear categorias
     public ResponseEntity<CategoriaResponseDto> update(@PathVariable Long id, @RequestBody CategoriaPlatoDto categoriaPlatoDto){
         CategoriaResponseDto response = categoriaPlatoService.update(id, categoriaPlatoDto);
 

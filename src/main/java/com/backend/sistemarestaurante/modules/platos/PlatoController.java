@@ -14,7 +14,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/platos")
-@PreAuthorize("isAuthenticated()") // protección por defecto
+@CrossOrigin(origins = "http://127.0.0.1:5500")
+//@PreAuthorize("permit") // protección por defecto
 public class PlatoController {
 
     // inyeccion de dependencias
@@ -45,13 +46,13 @@ public class PlatoController {
 
     // CREAR PLATO CON IMAGEN
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<PlatoResponseDto> crearPlato(
             @RequestPart("plato") String platoRequestJson,
             @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
 
         try {
-            // LIMPIAR el JSON - eliminar caracteres inválidos
+            // LIMPIAR el JSON - eliminar caracteres inválidosx 
             String jsonLimpio = platoRequestJson
                     .replace("?", "")  // Eliminar caracteres ?
                     .replace("\uFEFF", "") // Eliminar BOM si existe

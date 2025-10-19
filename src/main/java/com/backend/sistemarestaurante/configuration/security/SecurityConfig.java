@@ -58,12 +58,13 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "api/categoriasPlatos/{id}/platos").permitAll();
 
                     //  ADMIN
-                    http.requestMatchers(HttpMethod.POST, "/api/platos/imagen").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.PUT, "/api/platos/{id}").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.DELETE, "/api/platos/{id}").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.POST, "/api/categoriasPlatos").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.PUT, "/api/categoriasPlatos/{id}").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.DELETE, "/api/categoriasPlatos/{id}").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.POST, "/api/platos/imagen").permitAll();
+                    http.requestMatchers(HttpMethod.PUT, "/api/platos/{id}").permitAll();
+                    http.requestMatchers(HttpMethod.DELETE, "/api/platos/{id}").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/api/categoriasPlatos").permitAll();
+                    http.requestMatchers(HttpMethod.PUT, "/api/categoriasPlatos/{id}").permitAll();
+                    http.requestMatchers(HttpMethod.DELETE, "/api/categoriasPlatos/{id}").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/api/platos").permitAll();
 
                     // Configurar el resto de endpoint - Requieren autenticación
                     http.anyRequest().authenticated();
@@ -107,7 +108,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of(
                 "https://alejo224.github.io",  // Dominio de GitHub Pages
-                "http://localhost:5173"        // Desarrollo local
+                "http://localhost:5173"   ,     // Desarrollo local
+                "http://127.0.0.1:5500"  //tu entorno actual (Live Server)
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

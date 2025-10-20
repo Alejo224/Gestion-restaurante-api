@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,10 +21,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 // Anotaciones
@@ -49,7 +53,11 @@ public class SecurityConfig {
                     // Endpoints publicos
                     http.requestMatchers("/auth/**").permitAll();  // Login, registro
                     http.requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/api/usuarios/register/admin").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/api/usuarios/login").permitAll();
+
+                    // Acceso público a imágenes
+                    http.requestMatchers("/images/**").permitAll();
 
                     http.requestMatchers(HttpMethod.GET ,"/api/platos").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/platos/{id}").permitAll();
@@ -58,18 +66,26 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "api/categoriasPlatos/{id}/platos").permitAll();
 
                     //  ADMIN
-                    http.requestMatchers(HttpMethod.POST, "/api/platos/imagen").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.PUT, "/api/platos/{id}").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.DELETE, "/api/platos/{id}").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.POST, "/api/categoriasPlatos").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.PUT, "/api/categoriasPlatos/{id}").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.DELETE, "/api/categoriasPlatos/{id}").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.POST, "/api/platos").permitAll();
+                    http.requestMatchers(HttpMethod.PUT, "/api/platos/{id}").permitAll();
+                    http.requestMatchers(HttpMethod.DELETE, "/api/platos/{id}").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/api/categoriasPlatos").permitAll();
+                    http.requestMatchers(HttpMethod.PUT, "/api/categoriasPlatos/{id}").permitAll();
+                    http.requestMatchers(HttpMethod.DELETE, "/api/categoriasPlatos/{id}").permitAll();
 
                     // Configurar el resto de endpoint - Requieren autenticación
                     http.anyRequest().authenticated();
 
 
                 })
+                // LOGOUT CONFIGURADO PARA FRONTEND
+                .logout(logout -> logout
+                        .logoutUrl("/api/auth/logout")           // URL del logout
+                        .logoutSuccessHandler(logoutSuccessHandler()) // Respuesta JSON
+                        .invalidateHttpSession(true)             // Invalidar sesión
+                        .deleteCookies("JSESSIONID")             // Limpiar cookies
+                        .clearAuthentication(true)               // Limpiar seguridad
+                )
                 .authenticationProvider(authenticationProvider())  // CONECTAR provide
                 .build();
     }
@@ -107,7 +123,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of(
                 "https://alejo224.github.io",  // Dominio de GitHub Pages
-                "http://localhost:5173"        // Desarrollo local
+                "http://localhost:5173",        // Desarrollo local
+                "http://127.0.0.1:5500"         // entorno actual (Live Server)
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
@@ -116,6 +133,25 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    // Respuesta JSON para el frontend
+    @Bean
+    public LogoutSuccessHandler logoutSuccessHandler() {
+        return (request, response, authentication) -> {
+            response.setStatus(HttpStatus.OK.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+            String jsonResponse = """
+                    {
+                        "success": true,
+                        "message": "Logout exitoso",
+                        "timestamp": "%s"
+                    }
+                    """.formatted(LocalDateTime.now().toString());
+
+            response.getWriter().write(jsonResponse);
+        };
     }
     // Configuracion de los componenetes, PasswordEncoder y UserDetailsService
     @Bean

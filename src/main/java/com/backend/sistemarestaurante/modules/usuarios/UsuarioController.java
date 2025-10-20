@@ -58,4 +58,13 @@ public class UsuarioController {
         }
 
     }
+
+    // Registrar un nuevo usuario
+    @PostMapping("/register/admin")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<UsuarioResponseDto> registrarAdmin(@Valid @RequestBody UsuarioRequestDto usuarioRequestDto){
+        UsuarioResponseDto responseDto = usuarioService.registrarAdmin(usuarioRequestDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
 }

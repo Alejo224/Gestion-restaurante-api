@@ -6,10 +6,13 @@ import com.backend.sistemarestaurante.modules.Roles.RoleRepository;
 import com.backend.sistemarestaurante.modules.permissions.PermissionEntity;
 import com.backend.sistemarestaurante.modules.usuarios.Usuario;
 import com.backend.sistemarestaurante.modules.usuarios.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Set;
@@ -21,92 +24,5 @@ public class SistemaRestauranteApplication {
         SpringApplication.run(SistemaRestauranteApplication.class, args);
     }
 
-    /*
-    * Metodo que se va a ejecutar inmediatamente se levanta la aplicacion,
-    * Se va a ejecutar codigo para poblar nuestras tablas (guardar los registros)
-    * */
 
-    @Bean
-    CommandLineRunner init(UsuarioRepository usuarioRepository,  RoleRepository roleRepository) {
-        return args -> {
-            /* CREATE PERMISSIONS*/
-            PermissionEntity createPermission = PermissionEntity.builder()
-                    .nombre("CREATE")
-                    .build();
-
-            PermissionEntity readPermission = PermissionEntity.builder()
-                    .nombre("READ")
-                    .build();
-
-            PermissionEntity updatePermission = PermissionEntity.builder()
-                    .nombre("UPDATE")
-                    .build();
-
-            PermissionEntity deletePermission = PermissionEntity.builder()
-                    .nombre("DELETE")
-                    .build();
-
-            /* PERMISOS ESPECÍFICOS CLAVE */
-            PermissionEntity paymentPermission = PermissionEntity.builder()
-                    .nombre("PAYMENT_PROCESS")  // Para procesar pagos
-                    .build();
-
-            PermissionEntity cartPermission = PermissionEntity.builder()
-                    .nombre("CART_MANAGE")      // Para gestionar carrito
-                    .build();
-
-            /* ROL Admin - Todo */
-            RoleEntity roleAdmin = RoleEntity.builder()
-                    .roleEnum(RoleEnum.ADMIN)
-                    .permissionSet(Set.of(createPermission, readPermission, deletePermission,
-                            updatePermission, paymentPermission, cartPermission))
-                    .build();
-
-            /* ROL User - Lectura + Carrito + Pagos */
-            RoleEntity roleUser = RoleEntity.builder()
-                    .roleEnum(RoleEnum.USER)
-                    .permissionSet(Set.of(readPermission, paymentPermission, cartPermission))
-                    .build();
-
-            /* ROL Invited - Lectura*/
-            RoleEntity roleInvited = RoleEntity.builder()
-                    .roleEnum(RoleEnum.INVITED)
-                    .permissionSet(Set.of(readPermission))
-                    .build();
-
-            // ✅ GUARDAR ROLES EN BD PRIMERO (ESTO FALTABA)
-            List<RoleEntity> rolesGuardados = roleRepository.saveAll(List.of(roleAdmin, roleUser, roleInvited));
-            System.out.println("✅ Roles guardados en BD: " + rolesGuardados.size());
-
-            /*
-            //Create USERS
-            Usuario usuarioAdmin = Usuario.builder()
-                    .email("admin@gmail.com")
-                    .password("1234F@mi99")
-                    .isEnable(true)
-                    .isAccountNonExpired(true)
-                    .isAccountNonLocked(true)
-                    .isCredentialsNonExpired(true)
-                    .roles(Set.of(roleAdmin))
-                    .telefono("898937182783")
-                    .nombreCompleto("admin")
-                    .build();
-
-            Usuario usuarioCliente = Usuario.builder()
-                    .email("cliente@gmail.com")
-                    .password("12341234F@mi99")
-                    .isEnable(true)
-                    .isAccountNonExpired(true)
-                    .isAccountNonLocked(true)
-                    .isCredentialsNonExpired(true)
-                    .roles(Set.of(roleUser))
-                    .telefono("32909389212")
-                    .nombreCompleto("cliente")
-                    .build();
-
-            usuarioRepository.saveAll(List.of(usuarioAdmin, usuarioCliente));
-             */
-
-        };
-    }
 }

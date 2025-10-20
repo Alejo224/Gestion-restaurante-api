@@ -10,6 +10,7 @@ import com.backend.sistemarestaurante.modules.usuarios.dto.UsuarioResponseDto;
 import com.backend.sistemarestaurante.shared.exceptions.DuplicateEmailException;
 import com.backend.sistemarestaurante.shared.exceptions.DuplicateTelefonoException;
 import com.backend.sistemarestaurante.shared.exceptions.InvalidPasswordException;
+import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -87,6 +88,40 @@ public class UsuarioService {
         return modelMapper.map(usuarioGuardado, UsuarioResponseDto.class);
     }
 
+    // metodo crear admin
+    public UsuarioResponseDto registrarAdmin(UsuarioRequestDto requestDto){
+        // validar que el email no este registrado
+        if (usuarioRepository.existsByEmail(requestDto.getEmail())){
+            throw new DuplicateEmailException("El email ya está registrado");
+        }
+
+        // validar que el telefono no exista
+        if (usuarioRepository.existsByTelefono(requestDto.getTelefono())){
+            throw new DuplicateTelefonoException("El telefono ya está registrado");
+        }
+
+        // OBTENER ROL ADMIN
+        RoleEntity rolAdmin = roleRepository.findByRoleEnum(RoleEnum.ADMIN)
+                .orElseThrow(() -> new IllegalArgumentException("El rol por defecto no existe"));
+
+        // convertir dto a entidad utilizando Model Mapper
+        Usuario usuario = modelMapper.map(requestDto, Usuario.class);
+
+        // codificar contraseña
+        usuario.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+
+        // configuracion de seguridad por default
+        configurarSeguridadPorDefecto(usuario);
+
+        // Asignar rol por default
+        usuario.setRoles(Set.of(rolAdmin));
+
+        // Guardar usuario en la base de datos
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+
+        return modelMapper.map(usuarioGuardado, UsuarioResponseDto.class);
+    }
+
     // Metodo para logiarse
     public LoginResponseDto login(LoginRequestDto loginRequest){
         try {
@@ -138,20 +173,5 @@ public class UsuarioService {
         usuario.setAccountNonExpired(true);
         usuario.setAccountNonLocked(true);
         usuario.setCredentialsNonExpired(true);
-    }
-
-    private void validarPassword(String password) {
-        if (password.length() < 8) {
-            throw new InvalidPasswordException("La contraseña debe tener minimo 5 caracteres.");
-        }
-        if (!password.matches(".*[A-Z].*")) {
-            throw new InvalidPasswordException("The password debe tener almenos una letra en mayuscula ");
-        }
-        if (!password.matches(".*[0-9].*")) {
-            throw new InvalidPasswordException("The passord should have almost one number.");
-        }
-        if (!password.matches(".*[!#$%&()*^].*")) {
-            throw new InvalidPasswordException("The password should have almost one special charater");
-        }
     }
 }

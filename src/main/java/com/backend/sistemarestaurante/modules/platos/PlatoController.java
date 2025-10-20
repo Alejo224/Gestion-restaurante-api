@@ -45,7 +45,7 @@ public class PlatoController {
 
     // CREAR PLATO CON IMAGEN
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<PlatoResponseDto> crearPlato(
             @RequestPart("plato") String platoRequestJson,
             @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
@@ -75,7 +75,7 @@ public class PlatoController {
 
     // ACTUALIZAR PLATO COMPLETO (datos + imagen opcional)
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<PlatoResponseDto> actualizarPlato(
             @PathVariable Long id,
             @RequestPart("plato") String platoRequestJson,

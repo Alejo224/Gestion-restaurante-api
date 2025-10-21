@@ -51,6 +51,10 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/api/usuarios/login").permitAll();
 
+                    // Acceso público a imágenes (CORREGIDO)
+                    http.requestMatchers("/api/platos/imagen/**").permitAll(); // <-- AÑADIDO
+                    http.requestMatchers("/images/**").permitAll();
+
                     http.requestMatchers(HttpMethod.GET ,"/api/platos").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/platos/{id}").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/categoriasPlatos").permitAll();

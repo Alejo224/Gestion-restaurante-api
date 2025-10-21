@@ -57,6 +57,8 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.POST, "/api/usuarios/login").permitAll();
 
                     // Acceso público a imágenes
+                    // Acceso público a imágenes (¡AÑADE ESTA LÍNEA!)
+                    http.requestMatchers("/api/platos/imagen/**").permitAll(); // <-- ¡ESTA ES LA CLAVE!
                     http.requestMatchers("/images/**").permitAll();
 
                     http.requestMatchers(HttpMethod.GET ,"/api/platos").permitAll();

@@ -66,24 +66,24 @@ WHERE r.role_nombre = 'INVITED'
 
 -- 6. INSERTAR CATEGORÍAS DE PLATOS
 INSERT INTO categoria_plato (nombre_categoria)
-SELECT 'Entrada'
-WHERE NOT EXISTS (SELECT 1 FROM categoria_plato WHERE nombre_categoria = 'Entrada');
+SELECT 'Entradas'
+WHERE NOT EXISTS (SELECT 1 FROM categoria_plato WHERE nombre_categoria = 'Entradas');
 
 INSERT INTO categoria_plato (nombre_categoria)
-SELECT 'Hamburguesa'
-WHERE NOT EXISTS (SELECT 1 FROM categoria_plato WHERE nombre_categoria = 'Hamburguesa');
+SELECT 'Comida Rapida'
+WHERE NOT EXISTS (SELECT 1 FROM categoria_plato WHERE nombre_categoria = 'Comida Rapida');
 
 INSERT INTO categoria_plato (nombre_categoria)
-SELECT 'Plato Fuerte'
+SELECT 'Platos principales'
 WHERE NOT EXISTS (SELECT 1 FROM categoria_plato WHERE nombre_categoria = 'Plato Fuerte');
 
 INSERT INTO categoria_plato (nombre_categoria)
-SELECT 'Postre'
-WHERE NOT EXISTS (SELECT 1 FROM categoria_plato WHERE nombre_categoria = 'Postre');
+SELECT 'Postres'
+WHERE NOT EXISTS (SELECT 1 FROM categoria_plato WHERE nombre_categoria = 'Postres');
 
 INSERT INTO categoria_plato (nombre_categoria)
-SELECT 'Bebida'
-WHERE NOT EXISTS (SELECT 1 FROM categoria_plato WHERE nombre_categoria = 'Bebida');
+SELECT 'Bebidas'
+WHERE NOT EXISTS (SELECT 1 FROM categoria_plato WHERE nombre_categoria = 'Bebidas');
 
 -- 7. RESETEAR SECUENCIAS
 SELECT setval('categoria_plato_id_seq', COALESCE((SELECT MAX(id) FROM categoria_plato), 1), false);

@@ -1,6 +1,8 @@
 package com.backend.sistemarestaurante.configuration.security;
 
+import com.backend.sistemarestaurante.configuration.filter.JwtTokenValidator;
 import com.backend.sistemarestaurante.modules.usuarios.UserDetailServiceImpl;
+import com.backend.sistemarestaurante.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -38,6 +41,12 @@ public class SecurityConfig {
     @Autowired
     private UserDetailServiceImpl userDetailService;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     // Configuraciones de seguridad se implementaran aqui
 
     // Configurar el filter chain (configuraciones personalizadas)
@@ -46,15 +55,14 @@ public class SecurityConfig {
         return httpSecurity
                 .cors(Customizer.withDefaults()) // Habilita el CORS configurado en el Bean
                 .csrf(csrf -> csrf.disable())    // Desactiva CSRF para la API REST
-                .httpBasic(Customizer.withDefaults())
+                .httpBasic(httpBasic -> httpBasic.disable())    // Desactivar el http basic
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
                     // Endpoints publicos
                     http.requestMatchers("/auth/**").permitAll();  // Login, registro
-                    http.requestMatchers(HttpMethod.POST, "/api/usuarios/register").permitAll();
-                    http.requestMatchers(HttpMethod.POST, "/api/usuarios/register/admin").permitAll();
-                    http.requestMatchers(HttpMethod.POST, "/api/usuarios/login").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/api/usuarios/**").permitAll();
+
 
                     // Acceso público a imágenes
                     http.requestMatchers("/images/**").permitAll();
@@ -66,12 +74,12 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "api/categoriasPlatos/{id}/platos").permitAll();
 
                     //  ADMIN
-                    http.requestMatchers(HttpMethod.POST, "/api/platos").permitAll();
-                    http.requestMatchers(HttpMethod.PUT, "/api/platos/{id}").permitAll();
-                    http.requestMatchers(HttpMethod.DELETE, "/api/platos/{id}").permitAll();
-                    http.requestMatchers(HttpMethod.POST, "/api/categoriasPlatos").permitAll();
-                    http.requestMatchers(HttpMethod.PUT, "/api/categoriasPlatos/{id}").permitAll();
-                    http.requestMatchers(HttpMethod.DELETE, "/api/categoriasPlatos/{id}").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/api/platos").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.PUT, "/api/platos/{id}").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.DELETE, "/api/platos/{id}").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.POST, "/api/categoriasPlatos").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.PUT, "/api/categoriasPlatos/{id}").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.DELETE, "/api/categoriasPlatos/{id}").hasRole("ADMIN");
 
                     // Configurar el resto de endpoint - Requieren autenticación
                     http.anyRequest().authenticated();
@@ -86,7 +94,7 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")             // Limpiar cookies
                         .clearAuthentication(true)               // Limpiar seguridad
                 )
-                .authenticationProvider(authenticationProvider())  // CONECTAR provide
+                .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
                 .build();
     }
 
@@ -112,7 +120,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider provieder = new DaoAuthenticationProvider();
-        provieder.setPasswordEncoder(passwordEncoder());
+        provieder.setPasswordEncoder(passwordEncoder);
         provieder.setUserDetailsService(userDetailService);
         return provieder;
     }
@@ -124,7 +132,8 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(List.of(
                 "https://alejo224.github.io",  // Dominio de GitHub Pages
                 "http://localhost:5173",        // Desarrollo local
-                "http://127.0.0.1:5500"         // entorno actual (Live Server)
+                "http://127.0.0.1:5500",         // entorno actual (Live Server)
+                "http://localhost:8080"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
@@ -152,11 +161,6 @@ public class SecurityConfig {
 
             response.getWriter().write(jsonResponse);
         };
-    }
-    // Configuracion de los componenetes, PasswordEncoder y UserDetailsService
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
     }
 
 }

@@ -1,9 +1,6 @@
 package com.backend.sistemarestaurante.modules.usuarios;
 
-import com.backend.sistemarestaurante.modules.usuarios.dto.LoginRequestDto;
-import com.backend.sistemarestaurante.modules.usuarios.dto.LoginResponseDto;
-import com.backend.sistemarestaurante.modules.usuarios.dto.UsuarioRequestDto;
-import com.backend.sistemarestaurante.modules.usuarios.dto.UsuarioResponseDto;
+import com.backend.sistemarestaurante.modules.usuarios.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +27,9 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private UserDetailServiceImpl userDetailService;
+
     // Obtener todos los usuarios
     @GetMapping
     public ResponseEntity<List<Usuario>> getAll(){
@@ -37,6 +37,7 @@ public class UsuarioController {
     }
 
     // Registrar un nuevo usuario
+    /*
     @PostMapping("/register")
     @PreAuthorize("permitAll()")
     public ResponseEntity<UsuarioResponseDto> registrarUsuario(@Valid @RequestBody UsuarioRequestDto usuarioRequestDto){
@@ -45,8 +46,20 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+     */
+
+    /**
+     * REGISTRO DE CLIENTE - Público (ROL USER automático)
+     */
+    @PostMapping("/register")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<AuthResponse> registerClient(@RequestBody @Valid RegisterClientRequest request) {
+        return new ResponseEntity<>(userDetailService.registerClient(request), HttpStatus.CREATED);
+    }
+
+
     // login
-    @PostMapping("/login")
+    /*@PostMapping("/login")
     @PreAuthorize("permitAll()")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequest) {
         try {
@@ -59,6 +72,13 @@ public class UsuarioController {
 
     }
 
+     */
+    @PostMapping("/login")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthLoginRequest userRequest){
+    return new ResponseEntity<>(this.userDetailService.loginUser(userRequest), HttpStatus.OK);
+    }
+
     // Registrar un nuevo usuario
     @PostMapping("/register/admin")
     @PreAuthorize("permitAll()")
@@ -66,5 +86,14 @@ public class UsuarioController {
         UsuarioResponseDto responseDto = usuarioService.registrarAdmin(usuarioRequestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
+    /**
+     * CREAR USUARIO (ADMIN) - Protegido (Solo ADMIN puede crear usuarios con roles personalizados)
+     */
+    @PostMapping("/create-user")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AuthResponse> createUser(@RequestBody @Valid AuthCreateUserRequest userRequest) {
+        return new ResponseEntity<>(userDetailService.createUser(userRequest), HttpStatus.CREATED);
     }
 }

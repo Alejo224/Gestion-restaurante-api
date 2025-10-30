@@ -100,7 +100,7 @@ public class SecurityConfig {
                 })
                 // LOGOUT CONFIGURADO PARA FRONTEND
                 .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")           // URL del logout
+                        .logoutUrl("/api/usuarios/logout")           // URL del logout
                         .logoutSuccessHandler(logoutSuccessHandler()) // Respuesta JSON
                         .invalidateHttpSession(true)             // Invalidar sesión
                         .deleteCookies("JSESSIONID")             // Limpiar cookies

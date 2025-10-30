@@ -69,17 +69,29 @@ public class SecurityConfig {
 
                     http.requestMatchers(HttpMethod.GET ,"/api/platos").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/platos/{id}").permitAll();
+
                     http.requestMatchers(HttpMethod.GET, "/api/categoriasPlatos").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/categoriasPlatos/{id}").permitAll();
                     http.requestMatchers(HttpMethod.GET, "api/categoriasPlatos/{id}/platos").permitAll();
+
+                    http.requestMatchers(HttpMethod.GET, "api/mesas/{id}").hasAnyRole("ADMIN",
+                            "USER");
+                    http.requestMatchers(HttpMethod.GET, "api/mesas").hasAnyRole("ADMIN",
+                            "USER");
 
                     //  ADMIN
                     http.requestMatchers(HttpMethod.POST, "/api/platos").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.PUT, "/api/platos/{id}").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "/api/platos/{id}").hasRole("ADMIN");
+
                     http.requestMatchers(HttpMethod.POST, "/api/categoriasPlatos").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.PUT, "/api/categoriasPlatos/{id}").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "/api/categoriasPlatos/{id}").hasRole("ADMIN");
+
+                    http.requestMatchers(HttpMethod.POST, "/api/mesas").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.PUT, "/api/mesas/{id}").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.DELETE, "/api/mesas/{id}").hasRole("ADMIN");
+
 
                     // Configurar el resto de endpoint - Requieren autenticación
                     http.anyRequest().authenticated();
@@ -88,7 +100,7 @@ public class SecurityConfig {
                 })
                 // LOGOUT CONFIGURADO PARA FRONTEND
                 .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")           // URL del logout
+                        .logoutUrl("/api/usuarios/logout")           // URL del logout
                         .logoutSuccessHandler(logoutSuccessHandler()) // Respuesta JSON
                         .invalidateHttpSession(true)             // Invalidar sesión
                         .deleteCookies("JSESSIONID")             // Limpiar cookies

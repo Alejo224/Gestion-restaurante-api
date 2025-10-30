@@ -20,7 +20,9 @@ public class Mesa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String descripcion;
+    private String nombreMesa;
     
     private boolean estado = true; // true = disponible, false = ocupada
+
+    private Long capacidad;
 }

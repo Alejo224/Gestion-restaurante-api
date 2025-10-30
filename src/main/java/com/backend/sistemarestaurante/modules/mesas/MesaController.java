@@ -1,5 +1,7 @@
 package com.backend.sistemarestaurante.modules.mesas;
 
+import com.backend.sistemarestaurante.modules.mesas.dto.MesaRequestDTO;
+import com.backend.sistemarestaurante.modules.mesas.dto.MesaResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/mesas")
-@PreAuthorize("denyAll()") // Denegar todo el acceso por defecto
+@PreAuthorize("isAuthenticated()") // protección por defecto
 @Controller
 public class MesaController {
 
@@ -22,56 +24,51 @@ public class MesaController {
 
     // Metodo listar mesas
     @GetMapping
-    @PreAuthorize("permitAll()") // Permitir acceso publico a este endpoint
-    public ResponseEntity<List<Mesa>> getAll() {
-        List<Mesa> listarMesas = mesaService.getAll();
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')") // Permitir acceso publico a este endpoint
+    public ResponseEntity<List<MesaResponseDTO>> getAll() {
+
+        List<MesaResponseDTO> listarMesas = mesaService.getAll();
+
         return ResponseEntity.ok(listarMesas);  // 200 OK
     }
 
     // Metodo buscar mesa por id
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('READ')") // Permitir acceso solo a usuarios con permiso de lectura
-    public ResponseEntity<Mesa> getById(@PathVariable Long id) {
-        Optional<Mesa> mesaOpt = mesaService.getById(id);
-        return mesaOpt.map(ResponseEntity::ok) // 200 OK
-                .orElseGet(ResponseEntity.notFound()::build); // 404 Not Found
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')") // Permitir acceso solo a usuarios con permiso de lectura
+    public ResponseEntity<MesaResponseDTO> getById(@PathVariable Long id) {
+
+        MesaResponseDTO mesa = mesaService.getById(id);
+
+        return ResponseEntity.ok(mesa); //200 OK
     }
 
     // Metodo crear Mesa
     @PostMapping
-    @PreAuthorize("hasAuthority('CREATE')")
-    public ResponseEntity<Mesa> create(@RequestBody Mesa mesa) {
-        Mesa nuevaMesa = mesaService.create(mesa);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevaMesa); // 201 Created
+    @PreAuthorize("hasRole('ADMIN')")   // Solamente los que tenga el rol de ADMIN pueden crear
+    public ResponseEntity<MesaResponseDTO> create(@RequestBody MesaRequestDTO mesaRequestDTO) {
+        MesaResponseDTO mesaNueva = mesaService.create(mesaRequestDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(mesaNueva);   //201 CREATED
     }
 
     // Metodo actualizar Mesa
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('CREATE')")
-    public ResponseEntity<Mesa> update(@PathVariable Long id, @RequestBody Mesa mesa) {
-        Optional<Mesa> mesaOpt = mesaService.getById(id);
-        if (mesaOpt.isPresent()) {
-            Mesa mesaToUpdate = mesaOpt.get();
-            mesaToUpdate.setDescripcion(mesa.getDescripcion());
-            mesaToUpdate.setEstado(mesa.isEstado());
-            Mesa updatedMesa = mesaService.create(mesaToUpdate);
-            return ResponseEntity.ok(updatedMesa); // 200 OK
-        } else {
-            return ResponseEntity.notFound().build(); // 404 Not Found
-        }
+    @PreAuthorize("hasRole('ADMIN')")   // Solamente los que tenga el rol de ADMIN pueden actualizar
+    public ResponseEntity<MesaResponseDTO> update(@PathVariable Long id, @RequestBody MesaRequestDTO mesaRequestDTO) {
+
+        MesaResponseDTO mesaActualizada = mesaService.update(id, mesaRequestDTO);
+
+        return ResponseEntity.ok(mesaActualizada);  //200 OK
     }
 
     // Metodo eliminar Mesa
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('CREATE')")
-    public ResponseEntity<Mesa> delete(@PathVariable Long id){
-        Optional<Mesa> mesaOpt = mesaService.getById(id);
-        if (mesaOpt.isPresent()){
-            mesaService.delete(id);
-            return ResponseEntity.noContent().build(); //204 Not Content
-        }else{
-            return ResponseEntity.notFound().build(); //204 Not Found
-        }
+    @PreAuthorize("hasRole('ADMIN')")   // Solamente los que tenga el rol de ADMIN pueden eliminar
+    public ResponseEntity<Void> delete(@PathVariable Long id){
+
+        mesaService.eliminarMesa(id);
+        
+        return ResponseEntity.noContent().build(); 
     }
 
 }

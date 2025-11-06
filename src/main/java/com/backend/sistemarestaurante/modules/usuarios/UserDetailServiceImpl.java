@@ -7,6 +7,8 @@ import com.backend.sistemarestaurante.modules.usuarios.dto.AuthCreateUserRequest
 import com.backend.sistemarestaurante.modules.usuarios.dto.AuthLoginRequest;
 import com.backend.sistemarestaurante.modules.usuarios.dto.AuthResponse;
 import com.backend.sistemarestaurante.modules.usuarios.dto.RegisterClientRequest;
+import com.backend.sistemarestaurante.shared.exceptions.DuplicateEmailException;
+import com.backend.sistemarestaurante.shared.exceptions.DuplicateTelefonoException;
 import com.backend.sistemarestaurante.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -90,8 +92,13 @@ public class UserDetailServiceImpl implements UserDetailsService {
         }
 
         // Verificar si el email ya existe
-        if (usuarioRepository.findUsuarioByEmail(request.email()).isPresent()) {
-            throw new IllegalArgumentException("El email ya está registrado");
+        if (usuarioRepository.existsByEmail(request.email())) {
+            throw new DuplicateEmailException("El email ya está registrado");
+        }
+
+        // Verificar si el telefono ya existe
+        if (usuarioRepository.existsByTelefono(request.telefono())) {
+            throw new DuplicateTelefonoException("El telefono ya está registrado");
         }
 
         // Obtener el rol USER de la base de datos

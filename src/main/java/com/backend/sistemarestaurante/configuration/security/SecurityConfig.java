@@ -100,6 +100,10 @@ public class SecurityConfig {
                             "/webjars/**",
                             "/swagger-resources/**",
                             "/configuration/**").permitAll();
+
+                    // Permitir logout sin autenticacion
+                    http.requestMatchers("api/usuarios/logout").permitAll();
+
                     // Configurar el resto de endpoint - Requieren autenticación
                     http.anyRequest().authenticated();
 
@@ -112,6 +116,7 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)             // Invalidar sesión
                         .deleteCookies("JSESSIONID")             // Limpiar cookies
                         .clearAuthentication(true)               // Limpiar seguridad
+                        .permitAll()
                 )
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
                 .build();

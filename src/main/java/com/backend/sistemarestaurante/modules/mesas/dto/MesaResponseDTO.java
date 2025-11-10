@@ -1,10 +1,7 @@
 package com.backend.sistemarestaurante.modules.mesas.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Value;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -14,9 +11,10 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class MesaResponseDTO {
-    Long id;
-    String nombreMesa;
-    boolean estado;
-    Long capacidad;
+    private Long id;
+    private String nombreMesa;
+    private boolean estado;
+    private Integer capacidad;
 }

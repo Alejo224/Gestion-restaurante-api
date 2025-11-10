@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 public class PedidoRequest {
-    private Long usuarioId;
+
     private TipoServicio tipoServicio;
     private LocalDateTime horaRecogida; // Para RECOGER_PEDIDO
     private String direccionEntrega; // Para DOMICILIO

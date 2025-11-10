@@ -17,6 +17,11 @@ public class PedidoResponse {
     private EstadoPedidoEnum estadoPedidoEnum;
     private BigDecimal subtotal, iva, total;
     private String notas;
+    // AGREGAR CAMPOS CONDICIONALES
+    private LocalDateTime horaRecogida;        // Solo para RECOGER_PEDIDO
+    private String direccionEntrega;           // Solo para DOMICILIO
+    private String telefonoContacto;           // Para ambos, pero mostrar según contexto
+
     private List<DetallePedidoResponse> detalles;
-    
+
 }

@@ -92,6 +92,10 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.PUT, "/api/mesas/{id}").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "/api/mesas/{id}").hasRole("ADMIN");
 
+                    // ADMIN Y USER
+                    http.requestMatchers(HttpMethod.POST, "/api/pedidos").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.GET, "/api/pedidos").hasAnyRole("ADMIN", "USER");
+
                     // acceso a los endpoints de Swagger
                     http.requestMatchers("/swagger-ui.html",
                             "/swagger-ui/**",

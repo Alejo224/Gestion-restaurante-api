@@ -134,4 +134,13 @@ public class PedidoService{
                 .map(this::convertirAResponse)
                 .collect(Collectors.toList());
     }
+
+    // metodo obtenr todos los pedidos de los usuarios
+    public List<PedidoResponse> obtenerTodosLosPedidos(){
+        List<Pedido> pedidos = pedidoRepository.findAll();
+
+        return pedidos.stream()
+                .map(this::convertirAResponse)
+                .collect(Collectors.toList());
+    }
 }

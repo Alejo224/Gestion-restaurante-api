@@ -28,7 +28,7 @@ public class PedidoController {
     public ResponseEntity<PedidoResponse> crearPedido(@RequestBody PedidoRequest request,
                                                       Authentication authentication){
 
-        // ✅ Obtener el UserDetails desde Authentication
+        // Obtener el UserDetails desde Authentication
         String username = (String) authentication.getPrincipal();
 
         PedidoResponse response = pedidoService.crearPedido(request, username);
@@ -44,6 +44,14 @@ public class PedidoController {
         String email = (String) authentication.getPrincipal(); // El email del token
 
         List<PedidoResponse> pedidos = pedidoService.obtenerPedidosPorUsuario(email);
+        return ResponseEntity.ok(pedidos);
+    }
+
+    // Listar todos los pedidos de usuarios
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<PedidoResponse>> obtenerTodosLosPedidos(){
+        List<PedidoResponse> pedidos = pedidoService.obtenerTodosLosPedidos();
         return ResponseEntity.ok(pedidos);
     }
 

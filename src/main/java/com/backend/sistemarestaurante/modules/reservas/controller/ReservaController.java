@@ -48,4 +48,12 @@ public class ReservaController {
         reservaService.cancelarReserva(id, usuarioEmail);
         return ResponseEntity.noContent().build();
     }
+
+    // Enpoint obtener todasd las reservas
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<ReservaResponseDTO>> getAllReservas() {
+        List<ReservaResponseDTO> todasReservas = reservaService.obtenerTodasLasReservas();
+        return ResponseEntity.ok(todasReservas);
+    }
 }

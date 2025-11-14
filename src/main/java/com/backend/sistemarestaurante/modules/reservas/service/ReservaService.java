@@ -56,13 +56,13 @@ public class ReservaService {
             throw new MesaNoDisponibleException("La mesa '" + mesa.getNombreMesa() + "' no está disponible para reservas");
         }
 
-        // Validar capacidad
+       /* // Validar capacidad
         if (reservaDTO.getNumeroPersonas() > mesa.getCapacidad()) {
             throw new CapacidadExcedidaException(
                     "Capacidad excedida. La mesa '" + mesa.getNombreMesa() + "' soporta máximo " +
                             mesa.getCapacidad() + " personas, pero se solicitaron " + reservaDTO.getNumeroPersonas()
             );
-        }
+        }*/
 
         // Validar conflicto de reserva - CORRECTO
         boolean existeConflicto = reservaRepository.existsByFechaReservaAndHoraReservaAndMesaIdAndEstado(
@@ -77,17 +77,16 @@ public class ReservaService {
                     "La mesa '" + mesa.getNombreMesa() + "' ya tiene una reserva confirmada para " +
                             reservaDTO.getFechaReserva() + " a las " + horaFormateada);
         }
-
+/*
         // Validar número de personas
         if (reservaDTO.getNumeroPersonas() < 1 || reservaDTO.getNumeroPersonas() > 7) {
             throw new BusinessException("El número de personas debe estar entre 1 y 7", "NUMERO_PERSONAS_INVALIDO");
         }
-
+*/
         // Crear la reserva
         Reserva reserva = Reserva.builder()
                 .fechaReserva(reservaDTO.getFechaReserva())
                 .horaReserva(reservaDTO.getHoraReserva())
-                .numeroPersonas(reservaDTO.getNumeroPersonas())
                 .mesa(mesa)
                 .usuarioEmail(usuarioEmail)
                 .nota(reservaDTO.getNota())
@@ -104,7 +103,7 @@ public class ReservaService {
                 .id(reserva.getId())
                 .fechaReserva(reserva.getFechaReserva())
                 .horaReserva(reserva.getHoraReserva())
-                .numeroPersonas(reserva.getNumeroPersonas())
+               // .numeroPersonas(reserva.getNumeroPersonas())
                 .mesa(MesaResponseDTO.builder()
                         .id(reserva.getMesa().getId())
                         .nombreMesa(reserva.getMesa().getNombreMesa())

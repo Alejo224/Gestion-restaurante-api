@@ -35,7 +35,7 @@ services:
     networks:
       - app-restaurante-network
     volumes:
-      - postgres-volume-restaurante:/var/lib/postgresql/data
+      - postgres-volume-restaurante:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U alejandro -d restaurante_db"]
       interval: 30s

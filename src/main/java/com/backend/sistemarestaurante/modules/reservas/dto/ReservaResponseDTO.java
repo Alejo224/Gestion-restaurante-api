@@ -18,7 +18,7 @@ public class ReservaResponseDTO {
     private Long id;
     private LocalDate fechaReserva;
     private LocalTime horaReserva;
-    private Integer numeroPersonas;
+   // private Integer numeroPersonas;
     private MesaResponseDTO mesa; // Enviamos el objeto completo de la mesa
     private String nota;
     private String estado;

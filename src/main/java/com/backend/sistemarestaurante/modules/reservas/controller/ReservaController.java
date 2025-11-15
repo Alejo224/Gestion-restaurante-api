@@ -33,7 +33,7 @@ public class ReservaController {
     }
 
     // Obtener reservas del usuario autenticado
-    @GetMapping("/mis-reservas")
+        @GetMapping("/mis-reservas")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<ReservaResponseDTO>> getMisReservas(@AuthenticationPrincipal String usuarioEmail) {
         List<ReservaResponseDTO> misReservas = reservaService.obtenerReservasPorUsuario(usuarioEmail);
@@ -48,4 +48,5 @@ public class ReservaController {
         reservaService.cancelarReserva(id, usuarioEmail);
         return ResponseEntity.noContent().build();
     }
+
 }

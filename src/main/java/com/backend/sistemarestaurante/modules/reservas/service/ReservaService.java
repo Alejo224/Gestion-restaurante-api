@@ -140,4 +140,11 @@ public class ReservaService {
         return true;
     }
 
+    public List<ReservaResponseDTO> obtenerTodasLasReservas() {
+        return reservaRepository.findAll()
+                .stream()
+                .map(this::convertirAResponseDTO)
+                .toList();
+    }
+
 }

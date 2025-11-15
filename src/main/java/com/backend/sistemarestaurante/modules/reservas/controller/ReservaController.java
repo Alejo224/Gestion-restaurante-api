@@ -49,4 +49,14 @@ public class ReservaController {
         return ResponseEntity.noContent().build();
     }
 
+<<<<<<< HEAD
+    // Enpoint obtener todasd las reservas
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<ReservaResponseDTO>> getAllReservas() {
+        List<ReservaResponseDTO> todasReservas = reservaService.obtenerTodasLasReservas();
+        return ResponseEntity.ok(todasReservas);
+    }
+=======
+>>>>>>> origin/main
 }

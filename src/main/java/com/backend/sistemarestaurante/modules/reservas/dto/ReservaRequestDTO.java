@@ -16,7 +16,6 @@ import java.time.LocalTime;
 public class ReservaRequestDTO {
     private LocalDate fechaReserva;
     private LocalTime horaReserva;
-    private Integer numeroPersonas;
     private Long mesaId; // Solo recibimos el ID
     private String nota;
 }

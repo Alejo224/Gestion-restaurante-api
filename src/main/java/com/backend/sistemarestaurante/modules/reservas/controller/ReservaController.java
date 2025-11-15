@@ -33,7 +33,7 @@ public class ReservaController {
     }
 
     // Obtener reservas del usuario autenticado
-    @GetMapping("/mis-reservas")
+        @GetMapping("/mis-reservas")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<ReservaResponseDTO>> getMisReservas(@AuthenticationPrincipal String usuarioEmail) {
         List<ReservaResponseDTO> misReservas = reservaService.obtenerReservasPorUsuario(usuarioEmail);
@@ -49,6 +49,7 @@ public class ReservaController {
         return ResponseEntity.noContent().build();
     }
 
+<<<<<<< HEAD
     // Enpoint obtener todasd las reservas
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
@@ -56,4 +57,6 @@ public class ReservaController {
         List<ReservaResponseDTO> todasReservas = reservaService.obtenerTodasLasReservas();
         return ResponseEntity.ok(todasReservas);
     }
+=======
+>>>>>>> origin/main
 }

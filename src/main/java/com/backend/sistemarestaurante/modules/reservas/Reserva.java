@@ -27,8 +27,8 @@ public class Reserva {
     @Column(name = "hora_reserva", nullable = false)
     private LocalTime horaReserva;
 
-    @Column(name = "numero_personas", nullable = false)
-    private Integer numeroPersonas;
+   // @Column(name = "numero_personas", nullable = false)
+   // private Integer numeroPersonas;
 
     // RELACIÓN CON MESA
     @ManyToOne(fetch = FetchType.LAZY)

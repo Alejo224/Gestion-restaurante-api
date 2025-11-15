@@ -51,6 +51,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             Collection<? extends GrantedAuthority> authorities =
                     AuthorityUtils.commaSeparatedStringToAuthorityList(stringAuthorities);
 
+
             // Sectiar el usuario en el contex de spring security
             SecurityContext context = SecurityContextHolder.getContext();
             Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);

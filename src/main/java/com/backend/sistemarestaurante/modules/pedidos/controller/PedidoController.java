@@ -54,5 +54,14 @@ public class PedidoController {
         List<PedidoResponse> pedidos = pedidoService.obtenerTodosLosPedidos();
         return ResponseEntity.ok(pedidos);
     }
+    
+    // Cancelar pedido
+    /*
+    @PutMapping("/{id}/cancelar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<PedidoResponse> cancelarPedido(@){
+
+    }
+     */
 
 }

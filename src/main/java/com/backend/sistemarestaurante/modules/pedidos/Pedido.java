@@ -43,7 +43,7 @@ public class Pedido {
     private LocalDateTime fechaPedido;
 
     // Estado del pedido
-    @Column(nullable = false)
+    @Column(name = "estado", nullable = false)
     @Enumerated(EnumType.STRING)
     private EstadoPedidoEnum estadoPedidoEnum = EstadoPedidoEnum.BORRADOR;
 

@@ -6,6 +6,7 @@ import com.backend.sistemarestaurante.modules.pedidos.dtos.DetallePedidoRequest;
 import com.backend.sistemarestaurante.modules.pedidos.dtos.DetallePedidoResponse;
 import com.backend.sistemarestaurante.modules.pedidos.dtos.PedidoRequest;
 import com.backend.sistemarestaurante.modules.pedidos.dtos.PedidoResponse;
+import com.backend.sistemarestaurante.modules.pedidos.enums.EstadoPedidoEnum;
 import com.backend.sistemarestaurante.modules.pedidos.enums.TipoServicio;
 import com.backend.sistemarestaurante.modules.pedidos.repository.PedidoRepository;
 import com.backend.sistemarestaurante.modules.platos.Plato;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -119,7 +121,7 @@ public class PedidoService{
         return response;
     }
 
-    //  Opción A: Por email (recomendado con tu enfoque de token)
+    //  Obtner pedido por email (enfoque de token)
     public List<PedidoResponse> obtenerPedidosPorUsuario(String email) {
         List<Pedido> pedidos = pedidoRepository.findByUsuarioEmail(email);
         return pedidos.stream()
@@ -127,7 +129,7 @@ public class PedidoService{
                 .collect(Collectors.toList());
     }
 
-    // ✅ Opción B: Por ID (si lo prefieres)
+    // Obtener pedido Por ID
     public List<PedidoResponse> obtenerPedidosPorUsuarioId(Long usuarioId) {
         List<Pedido> pedidos = pedidoRepository.findByUsuarioId(usuarioId);
         return pedidos.stream()
@@ -142,5 +144,27 @@ public class PedidoService{
         return pedidos.stream()
                 .map(this::convertirAResponse)
                 .collect(Collectors.toList());
+    }
+
+    // Cancelar pedido
+    public PedidoResponse cancelarPedido(Long id, PedidoRequest pedidoRequest){
+
+        // Verificar si el pedido existe
+        Pedido pedidoExistente = pedidoRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Pedido no encontrado con el id: " + id));
+
+        // Validar que se puede cancelar
+        if (!pedidoExistente.getEstadoPedidoEnum().equals(EstadoPedidoEnum.BORRADOR) && !pedidoExistente.getEstadoPedidoEnum().equals(EstadoPedidoEnum.PENDIENTE)){
+            throw new IllegalStateException("El pedido no puede ser cancelado en su pedido acutal: " + pedidoExistente.getEstadoPedidoEnum());
+        }
+
+        // Copiar propiedades del DTO a la entidad (ignorando el ID)
+        modelMapper.map(pedidoRequest, pedidoExistente);
+
+        // Guardar el pedido actualizado
+        Pedido pedidoActualizado = pedidoRepository.save(pedidoExistente);
+
+        // Convertir a DTO de respuesta y retornar
+        return convertirAResponse(pedidoActualizado);
     }
 }

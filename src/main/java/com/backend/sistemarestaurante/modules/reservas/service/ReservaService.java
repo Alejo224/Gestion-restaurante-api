@@ -148,8 +148,13 @@ public class ReservaService {
                 .map(this::convertirAResponseDTO)
                 .toList();
     }
-    public List<Long> obtenerMesasOcupadas(LocalDate fecha, LocalTime hora){
-        return reservaRepository.findMesaIdByFechaReservaAndHoraReservaAndEstado(fecha, hora, "CONFIRMADA");
+    public List<ReservaResponseDTO> obtenerMesasOcupadas(LocalDate fecha, LocalTime hora){
+
+        return reservaRepository.findMesaIdByFechaReservaAndHoraReservaAndEstado(fecha, hora, "CONFIRMADA")
+                .stream()
+                .map(this::convertirAResponseDTO)
+                .toList();
+
     }
 
 

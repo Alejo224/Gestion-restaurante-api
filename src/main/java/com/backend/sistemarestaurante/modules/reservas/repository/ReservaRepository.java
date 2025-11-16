@@ -21,5 +21,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
     Optional<Reserva> findByIdAndUsuarioEmail(Long id, String usuarioEmail);
 
-    List<Long> findMesaIdByFechaReservaAndHoraReservaAndEstado(LocalDate fechaReserva, LocalTime horaReserva, String estado);
+    List<Reserva> findMesaIdByFechaReservaAndHoraReservaAndEstado(LocalDate fechaReserva, LocalTime horaReserva,
+                                                            String estado);
 }

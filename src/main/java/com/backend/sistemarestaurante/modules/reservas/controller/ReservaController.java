@@ -63,11 +63,11 @@
 
         @GetMapping("/mesas-ocupadas")
         @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-        public ResponseEntity<List<Long>> obtenerMesasOcupadas(
+        public ResponseEntity<List<ReservaResponseDTO>> obtenerMesasOcupadas(
                 @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
                 @RequestParam("hora") @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime hora) {
 
-            List<Long> mesasOcupadasIds = reservaService.obtenerMesasOcupadas(fecha, hora);
+            List<ReservaResponseDTO> mesasOcupadasIds = reservaService.obtenerMesasOcupadas(fecha, hora);
             return ResponseEntity.ok(mesasOcupadasIds);
         }
 

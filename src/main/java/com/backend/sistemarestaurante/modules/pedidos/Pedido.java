@@ -33,7 +33,11 @@ public class Pedido {
     private TipoServicio tipoServicio;
 
     // Detalles segun tipo de servicio
-    private LocalDateTime horaRecogida; // Para RECOGER_PEDIDO
+    private LocalDateTime horaRecogida; // Asignarlo al restaurante
+
+    // Campos para cancelacion de pedidos
+    private LocalDateTime fechaCancelacion;
+    private String motivoCancelacion;
 
     // Campos OPCIONALES (solo para domicilio)
     private String direccionEntrega;

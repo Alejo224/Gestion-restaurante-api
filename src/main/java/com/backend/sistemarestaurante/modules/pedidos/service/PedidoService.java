@@ -2,10 +2,10 @@ package com.backend.sistemarestaurante.modules.pedidos.service;
 
 import com.backend.sistemarestaurante.modules.pedidos.DetallePedido;
 import com.backend.sistemarestaurante.modules.pedidos.Pedido;
-import com.backend.sistemarestaurante.modules.pedidos.dtos.DetallePedidoRequest;
-import com.backend.sistemarestaurante.modules.pedidos.dtos.DetallePedidoResponse;
-import com.backend.sistemarestaurante.modules.pedidos.dtos.PedidoRequest;
-import com.backend.sistemarestaurante.modules.pedidos.dtos.PedidoResponse;
+import com.backend.sistemarestaurante.modules.pedidos.dto.DetallePedidoRequest;
+import com.backend.sistemarestaurante.modules.pedidos.dto.DetallePedidoResponse;
+import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoRequest;
+import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoResponse;
 import com.backend.sistemarestaurante.modules.pedidos.enums.EstadoPedidoEnum;
 import com.backend.sistemarestaurante.modules.pedidos.enums.TipoServicio;
 import com.backend.sistemarestaurante.modules.pedidos.repository.PedidoRepository;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

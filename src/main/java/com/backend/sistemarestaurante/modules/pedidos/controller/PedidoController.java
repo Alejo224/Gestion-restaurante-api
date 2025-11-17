@@ -1,16 +1,13 @@
 package com.backend.sistemarestaurante.modules.pedidos.controller;
 
-import com.backend.sistemarestaurante.modules.pedidos.dtos.PedidoRequest;
-import com.backend.sistemarestaurante.modules.pedidos.dtos.PedidoResponse;
+import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoRequest;
+import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoResponse;
 import com.backend.sistemarestaurante.modules.pedidos.service.PedidoService;
-import com.backend.sistemarestaurante.modules.usuarios.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

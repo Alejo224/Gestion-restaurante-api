@@ -66,7 +66,7 @@ public class PedidoService{
         if (pedidoRequest.getTipoServicio() == TipoServicio.RECOGER_PEDIDO){
             // SOLO PARA RECOGER_PEDIDO: telefono y hora de recogida
             pedido.setTelefonoContacto(pedidoRequest.getTelefonoContacto());
-            pedido.setHoraRecogida(pedidoRequest.getHoraRecogida());
+            // pedido.setHoraRecogida(pedidoRequest.getHoraRecogida());
 
             // Limpiar el camdo de direccion de entrega
             pedido.setDireccionEntrega(null);

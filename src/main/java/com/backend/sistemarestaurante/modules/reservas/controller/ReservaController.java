@@ -17,7 +17,7 @@
     
     @RestController
     @RequiredArgsConstructor
-    @RequestMapping("/api/reserva")
+        @RequestMapping("/api/reserva")
     @PreAuthorize("isAuthenticated()")
     public class ReservaController {
     

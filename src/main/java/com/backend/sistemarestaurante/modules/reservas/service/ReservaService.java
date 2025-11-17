@@ -150,11 +150,9 @@ public class ReservaService {
     }
     public List<ReservaResponseDTO> obtenerMesasOcupadas(LocalDate fecha, LocalTime hora){
 
-        return reservaRepository.findMesaIdByFechaReservaAndHoraReservaAndEstado(fecha, hora, "CONFIRMADA")
-                .stream()
-                .map(this::convertirAResponseDTO)
+        return reservaRepository.findMesaIdByFechaReservaAndHoraReservaAndEstado
+                (fecha, hora, "CONFIRMADA").stream().map(this::convertirAResponseDTO)
                 .toList();
-
     }
 
 

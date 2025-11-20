@@ -18,4 +18,5 @@ public class ReservaRequestDTO {
     private LocalTime horaReserva;
     private Long mesaId; // Solo recibimos el ID
     private String nota;
+
 }

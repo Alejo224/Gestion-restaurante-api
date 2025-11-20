@@ -13,6 +13,8 @@ import com.backend.sistemarestaurante.shared.exceptions.business.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -146,5 +148,14 @@ public class ReservaService {
                 .map(this::convertirAResponseDTO)
                 .toList();
     }
+    public List<ReservaResponseDTO> obtenerMesasOcupadas(LocalDate fecha, LocalTime hora){
+
+        return reservaRepository.findMesaIdByFechaReservaAndHoraReservaAndEstado(fecha, hora, "CONFIRMADA")
+                .stream()
+                .map(this::convertirAResponseDTO)
+                .toList();
+
+    }
+
 
 }

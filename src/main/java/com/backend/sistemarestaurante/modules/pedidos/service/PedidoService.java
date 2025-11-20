@@ -2,10 +2,7 @@ package com.backend.sistemarestaurante.modules.pedidos.service;
 
 import com.backend.sistemarestaurante.modules.pedidos.DetallePedido;
 import com.backend.sistemarestaurante.modules.pedidos.Pedido;
-import com.backend.sistemarestaurante.modules.pedidos.dto.DetallePedidoRequest;
-import com.backend.sistemarestaurante.modules.pedidos.dto.DetallePedidoResponse;
-import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoRequest;
-import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoResponse;
+import com.backend.sistemarestaurante.modules.pedidos.dto.*;
 import com.backend.sistemarestaurante.modules.pedidos.enums.EstadoPedidoEnum;
 import com.backend.sistemarestaurante.modules.pedidos.enums.TipoServicio;
 import com.backend.sistemarestaurante.modules.pedidos.repository.PedidoRepository;
@@ -21,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,35 +38,25 @@ public class PedidoService{
 
     // Metodo de crear pedido
     public PedidoResponse crearPedido(PedidoRequest pedidoRequest, String email){
-
-        //  Buscar usuario por EMAIL (que viene en el token)
+        // Buscar usuario por EMAIL
         Usuario usuario = usuarioRepository.findUsuarioByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con el email: " + email));
-        
-        // Crear pedido base
-        Pedido pedido = new Pedido();
+
+        // Mapear con ModelMapper
+        Pedido pedido = modelMapper.map(pedidoRequest, Pedido.class);
+
+        //  Establecer los valores que NO vienen del request
         pedido.setUsuario(usuario);
         pedido.setFechaPedido(LocalDateTime.now());
+        pedido.setEstadoPedidoEnum(EstadoPedidoEnum.BORRADOR);
 
-        // Mapear campos comunes
-        modelMapper.map(pedidoRequest, pedido); //  Copia automáticamente: tipoServicio, notas, etc.
-
-        // Campos condicionales (ModelMapper no puede mapear estos)
+        // Campos condicionales (ya los mapeó ModelMapper, solo ajustar)
         if (pedidoRequest.getTipoServicio() == TipoServicio.DOMICILIO){
-            // SOLO PARA DOMICILIO: telefono y direccion de entrega
-            pedido.setTelefonoContacto(pedidoRequest.getTelefonoContacto());
-            pedido.setDireccionEntrega(pedidoRequest.getDireccionEntrega());
-
             // Limpiar campo de recoger pedido
             pedido.setHoraRecogida(null);
-
         }
         if (pedidoRequest.getTipoServicio() == TipoServicio.RECOGER_PEDIDO){
-            // SOLO PARA RECOGER_PEDIDO: telefono y hora de recogida
-            pedido.setTelefonoContacto(pedidoRequest.getTelefonoContacto());
-            // pedido.setHoraRecogida(pedidoRequest.getHoraRecogida());
-
-            // Limpiar el camdo de direccion de entrega
+            // Limpiar el campo de direccion de entrega
             pedido.setDireccionEntrega(null);
         }
 
@@ -82,11 +70,10 @@ public class PedidoService{
 
         // Calcular totales
         pedido.calcularTotales();
-        
+
         // Guardar
         Pedido pedidoGuardado = pedidoRepository.save(pedido);
-        
-        // Convertir a responde con modelMapper
+
         return convertirAResponse(pedidoGuardado);
     }
 
@@ -97,15 +84,14 @@ public class PedidoService{
         // Campos que necesitan lógica especial
         response.setNombreUsuario(pedido.getUsuario().getNombreCompleto());
 
-        // Copiar campos condicionales (ya estan en la entidad pero para asegurarse)
-        response.setHoraRecogida(pedido.getHoraRecogida());
-        response.setTelefonoContacto(pedido.getTelefonoContacto());
-        response.setDireccionEntrega(pedido.getDireccionEntrega());
-
-        // Convertir detalles
-        response.setDetalles(pedido.getDetalles().stream()
-                .map(this::convertirDetalleAResponse)
-                .collect(Collectors.toList()));
+        // Validar nulos en detalles
+        if (pedido.getDetalles() != null) {
+            response.setDetalles(pedido.getDetalles().stream()
+                    .map(this::convertirDetalleAResponse)
+                    .collect(Collectors.toList()));
+        } else {
+            response.setDetalles(new ArrayList<>());
+        }
 
         return response;
     }
@@ -146,24 +132,56 @@ public class PedidoService{
     }
 
     // Cancelar pedido
-    public PedidoResponse cancelarPedido(Long id, PedidoRequest pedidoRequest){
+    public PedidoResponse cancelarPedido(Long id, CancelarPedidoRequest request){
 
         // Verificar si el pedido existe
         Pedido pedidoExistente = pedidoRepository.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException("Pedido no encontrado con el id: " + id));
 
         // Validar que se puede cancelar
-        if (!pedidoExistente.getEstadoPedidoEnum().equals(EstadoPedidoEnum.BORRADOR) && !pedidoExistente.getEstadoPedidoEnum().equals(EstadoPedidoEnum.PENDIENTE)){
-            throw new IllegalStateException("El pedido no puede ser cancelado en su pedido acutal: " + pedidoExistente.getEstadoPedidoEnum());
+        if (!pedidoExistente.puedeSerCancelado()){
+            throw new IllegalStateException("No se puede ser cancelado por el estado: " + pedidoExistente.getEstadoPedidoEnum());
         }
 
-        // Copiar propiedades del DTO a la entidad (ignorando el ID)
-        modelMapper.map(pedidoRequest, pedidoExistente);
+        // Cancelar pedido
+        pedidoExistente.cancelar(request.getMotivoCancelacion());
 
-        // Guardar el pedido actualizado
-        Pedido pedidoActualizado = pedidoRepository.save(pedidoExistente);
+        // Guardar el pedido camcelado
+        Pedido peidoCancelado = pedidoRepository.save(pedidoExistente);
 
         // Convertir a DTO de respuesta y retornar
+        return convertirAResponse(peidoCancelado);
+    }
+
+    // Actualizar el estado del pedido
+    public PedidoResponse actualizarEstadoPedido(Long id, ActualizarEstadoRequest request){
+
+        // Verificar si el pedido existe
+        Pedido pedidoExiste = pedidoRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Pedido no encontrado con el id: " + id));
+
+        validarTransicionEstado(pedidoExiste.getEstadoPedidoEnum(), request.getNuevoEstado());
+
+        // Cambiar estado del pedido
+        pedidoExiste.cambiarEstado(request.getNuevoEstado());
+        
+        // si es RECOGER_PEDIDO y el estado es LISTO, asignar hora recogida
+        if (pedidoExiste.getTipoServicio() == TipoServicio.RECOGER_PEDIDO && request.getNuevoEstado() == EstadoPedidoEnum.LISTO && request.getHoraRecogida() != null){
+            pedidoExiste.asignarHoraRecogida(request.getHoraRecogida());
+        }
+
+        // Guardar el pedido actualizado
+        Pedido pedidoActualizado = pedidoRepository.save(pedidoExiste);
+
         return convertirAResponse(pedidoActualizado);
+    }
+
+    private void validarTransicionEstado(EstadoPedidoEnum estadoActual, EstadoPedidoEnum nuevoEstado){
+        if (estadoActual == EstadoPedidoEnum.CANCELADO) {
+            throw new IllegalStateException("No se puede modificar un pedido cancelado");
+        }
+        if (estadoActual == EstadoPedidoEnum.COMPLETADO && nuevoEstado != EstadoPedidoEnum.COMPLETADO) {
+            throw new IllegalStateException("No se puede modificar un pedido completado");
+        }
     }
 }

@@ -6,5 +6,6 @@ public enum EstadoPedidoEnum {
     EN_PREPARACION, // En cocina
     LISTO,  // Listo para Entregar/Recoger
     ENTREGADO,  // Completado
-    CANCELADO   // Cancelado
+    CANCELADO,   // Cancelado
+    COMPLETADO
 }

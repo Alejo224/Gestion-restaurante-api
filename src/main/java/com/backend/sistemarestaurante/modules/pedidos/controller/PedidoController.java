@@ -1,5 +1,6 @@
 package com.backend.sistemarestaurante.modules.pedidos.controller;
 
+import com.backend.sistemarestaurante.modules.pedidos.dto.CancelarPedidoRequest;
 import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoRequest;
 import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoResponse;
 import com.backend.sistemarestaurante.modules.pedidos.service.PedidoService;
@@ -53,12 +54,12 @@ public class PedidoController {
     }
     
     // Cancelar pedido
-    /*
     @PutMapping("/{id}/cancelar")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<PedidoResponse> cancelarPedido(@){
+    public ResponseEntity<PedidoResponse> cancelarPedido(@PathVariable Long id, @RequestBody CancelarPedidoRequest request){
+        PedidoResponse response = pedidoService.cancelarPedido(id, request);
 
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-     */
 
 }

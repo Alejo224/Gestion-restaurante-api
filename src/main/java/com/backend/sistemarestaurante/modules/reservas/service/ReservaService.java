@@ -1,8 +1,11 @@
 package com.backend.sistemarestaurante.modules.reservas.service;
 
+import com.backend.sistemarestaurante.modules.categoriasPlatos.CategoriaPlato;
 import com.backend.sistemarestaurante.modules.mesas.Mesa;
 import com.backend.sistemarestaurante.modules.mesas.MesaRepository;
 import com.backend.sistemarestaurante.modules.mesas.dto.MesaResponseDTO;
+import com.backend.sistemarestaurante.modules.platos.Plato;
+import com.backend.sistemarestaurante.modules.platos.dto.PlatoResponseDto;
 import com.backend.sistemarestaurante.modules.reservas.ConfiguracionHorario;
 import com.backend.sistemarestaurante.modules.reservas.Reserva;
 import com.backend.sistemarestaurante.modules.reservas.dto.ReservaRequestDTO;
@@ -28,7 +31,6 @@ public class ReservaService {
     private final MesaRepository mesaRepository;
 
 
-
     public ReservaResponseDTO crearReserva(ReservaRequestDTO reservaDTO, String usuarioEmail) {
         // Validar que el horario esté en los horarios permitidos
         List<ConfiguracionHorario> horariosPermitidos = horarioService.obtenerHorariosDisponibles();
@@ -51,7 +53,7 @@ public class ReservaService {
 
         // Buscar la mesa
         Mesa mesa = mesaRepository.findById(reservaDTO.getMesaId())
-                .orElseThrow(() ->  new BusinessException("Mesa no encontrada con ID: " + reservaDTO.getMesaId(), "MESA_NO_ENCONTRADA"));
+                .orElseThrow(() -> new BusinessException("Mesa no encontrada con ID: " + reservaDTO.getMesaId(), "MESA_NO_ENCONTRADA"));
 
         // Validar que la mesa esté disponible
         if (!mesa.isEstado()) {
@@ -105,7 +107,7 @@ public class ReservaService {
                 .id(reserva.getId())
                 .fechaReserva(reserva.getFechaReserva())
                 .horaReserva(reserva.getHoraReserva())
-               // .numeroPersonas(reserva.getNumeroPersonas())
+                // .numeroPersonas(reserva.getNumeroPersonas())
                 .mesa(MesaResponseDTO.builder()
                         .id(reserva.getMesa().getId())
                         .nombreMesa(reserva.getMesa().getNombreMesa())
@@ -148,12 +150,54 @@ public class ReservaService {
                 .map(this::convertirAResponseDTO)
                 .toList();
     }
-    public List<ReservaResponseDTO> obtenerMesasOcupadas(LocalDate fecha, LocalTime hora){
+
+    public List<ReservaResponseDTO> obtenerMesasOcupadas(LocalDate fecha, LocalTime hora) {
 
         return reservaRepository.findMesaIdByFechaReservaAndHoraReservaAndEstado
-                (fecha, hora, "CONFIRMADA").stream().map(this::convertirAResponseDTO)
+                        (fecha, hora, "CONFIRMADA").stream().map(this::convertirAResponseDTO)
                 .toList();
     }
 
+    public ReservaResponseDTO actualizarReserva(Long id,
+                                                ReservaRequestDTO reservaDTO,
+                                                String usuarioEmail) {
+
+        // 1. Buscar reserva y validar que pertenece al usuario
+        Reserva reservaExistente = reservaRepository.findByIdAndUsuarioEmail(id, usuarioEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
+
+        // 2. Buscar la nueva mesa
+        Mesa nuevaMesa = mesaRepository.findById(reservaDTO.getMesaId())
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa no encontrada"));
+
+        // 3. Validar que la mesa esté disponible para la nueva fecha y hora
+        boolean existeConflicto = reservaRepository
+                .existsByFechaReservaAndHoraReservaAndMesaIdAndEstado(
+                        reservaDTO.getFechaReserva(),
+                        reservaDTO.getHoraReserva(),
+                        reservaDTO.getMesaId(),
+                        "CONFIRMADA"
+                );
+
+        if (existeConflicto) {
+            throw new ConflictoReservaException("La mesa '" + nuevaMesa.getNombreMesa() +
+                    "' ya está reservada para " + reservaDTO.getFechaReserva() +
+                    " a las " + reservaDTO.getHoraReserva());
+        }
+
+        // 4. Actualizar datos básicos
+        reservaExistente.setFechaReserva(reservaDTO.getFechaReserva());
+        reservaExistente.setHoraReserva(reservaDTO.getHoraReserva());
+        reservaExistente.setNota(reservaDTO.getNota());
+
+        // 5. Actualizar la mesa
+        reservaExistente.setMesa(nuevaMesa);
+
+        // 6. Guardar cambios
+        Reserva reservaActualizada = reservaRepository.save(reservaExistente);
+
+        // 7. Devolver respuesta DTO
+        return convertirAResponseDTO(reservaActualizada);
+    }
 
 }

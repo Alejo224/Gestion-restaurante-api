@@ -113,4 +113,6 @@ public class Pedido {
         this.estadoPedidoEnum = nuevoEstado;
     }
 
+    // sesion de stripe
+    private String stripeSessionId;
 }

@@ -7,5 +7,6 @@ public enum EstadoPedidoEnum {
     LISTO,  // Listo para Entregar/Recoger
     ENTREGADO,  // Completado
     CANCELADO,   // Cancelado
-    COMPLETADO
+    COMPLETADO,
+    CONFIRMADO
 }

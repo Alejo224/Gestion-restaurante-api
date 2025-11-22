@@ -85,7 +85,7 @@ public class StripeService {
         pedido.setTelefonoContacto(request.getTelefonoContacto());
         pedido.setNotas(request.getNotas());
         pedido.setFechaPedido(LocalDateTime.now());
-        pedido.setEstadoPedidoEnum(EstadoPedidoEnum.PENDIENTE);
+        pedido.setEstadoPedidoEnum(EstadoPedidoEnum.BORRADOR);
 
         // Agregar detalles del pedido
         List<String> platosNoEncontrados = new ArrayList<>();

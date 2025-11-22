@@ -23,4 +23,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
     List<Reserva> findMesaIdByFechaReservaAndHoraReservaAndEstado(LocalDate fechaReserva, LocalTime horaReserva,
                                                             String estado);
+
+
+
 }

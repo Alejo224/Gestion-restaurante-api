@@ -28,63 +28,66 @@ public class ReservaController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<ReservaResponseDTO> crearReserva(
             @RequestBody ReservaRequestDTO reservaDTO,
-            @AuthenticationPrincipal String usuarioEmail) {  // ← Email del token
+            @AuthenticationPrincipal String usuarioEmail) {
 
         ReservaResponseDTO reservaCreada = reservaService.crearReserva(reservaDTO, usuarioEmail);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(reservaCreada);
     }
 
     // Obtener reservas del usuario autenticado
     @GetMapping("/mis-reservas")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<List<ReservaResponseDTO>> getMisReservas(@AuthenticationPrincipal String usuarioEmail) {
-        List<ReservaResponseDTO> misReservas = reservaService.obtenerReservasPorUsuario(usuarioEmail);
+    public ResponseEntity<List<ReservaResponseDTO>> getMisReservas(
+            @AuthenticationPrincipal String usuarioEmail) {
 
+        List<ReservaResponseDTO> misReservas = reservaService.obtenerReservasPorUsuario(usuarioEmail);
         return ResponseEntity.ok(misReservas);
     }
 
-    //actualizar Reserva
+    // Actualizar reserva (TU NUEVO ENDPOINT)
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')") //Solo entran usuarios con rol ADMIN o USER    Si no tiene token válido, no pasa.
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<ReservaResponseDTO> actualizarReserva(
-            @PathVariable Long id, //el id de la reserva que vamos a modificar
-            @RequestBody ReservaRequestDTO reservaRequestDTO, // es el json(como los datos que cambia el usuario)
+            @PathVariable Long id,
+            @RequestBody ReservaRequestDTO reservaRequestDTO,
             @AuthenticationPrincipal String usuarioEmail) {
 
         ReservaResponseDTO reservaActualizada =
                 reservaService.actualizarReserva(id, reservaRequestDTO, usuarioEmail);
+
         return ResponseEntity.ok(reservaActualizada);
-
     }
-
 
     // Cancelar reserva (solo si es del usuario)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<Void> cancelarReserva(@PathVariable Long id, @AuthenticationPrincipal String usuarioEmail) {
+    public ResponseEntity<Void> cancelarReserva(
+            @PathVariable Long id,
+            @AuthenticationPrincipal String usuarioEmail) {
+
         reservaService.cancelarReserva(id, usuarioEmail);
         return ResponseEntity.noContent().build();
     }
 
-
-    // Enpoint obtener todasd las reservas
+    // Obtener todas las reservas (ADMIN)
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ReservaResponseDTO>> getAllReservas() {
+
         List<ReservaResponseDTO> todasReservas = reservaService.obtenerTodasLasReservas();
         return ResponseEntity.ok(todasReservas);
     }
 
+    // Mesas ocupadas según fecha y hora
     @GetMapping("/mesas-ocupadas")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<ReservaResponseDTO>> obtenerMesasOcupadas(
             @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam("hora") @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime hora) {
 
-        List<ReservaResponseDTO> mesasOcupadasIds = reservaService.obtenerMesasOcupadas(fecha, hora);
+        List<ReservaResponseDTO> mesasOcupadasIds =
+                reservaService.obtenerMesasOcupadas(fecha, hora);
+
         return ResponseEntity.ok(mesasOcupadasIds);
     }
-
-
 }

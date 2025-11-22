@@ -151,6 +151,7 @@ public class ReservaService {
                 .toList();
     }
 
+
     public List<ReservaResponseDTO> obtenerMesasOcupadas(LocalDate fecha, LocalTime hora) {
 
         return reservaRepository.findMesaIdByFechaReservaAndHoraReservaAndEstado

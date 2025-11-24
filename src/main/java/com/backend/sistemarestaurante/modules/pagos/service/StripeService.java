@@ -153,4 +153,56 @@ public class StripeService {
 
         return Session.create(params);
     }
+
+    // En tu StripeService - agrega este método
+    public SesionPagoResponse crearSesionPagoParaPedidoExistente(Pedido pedido, String customerEmail) {
+        try {
+            System.out.println("💰 Creando sesión de Stripe para pedido existente: " + pedido.getId());
+
+            // Validar que el pedido está en estado BORRADOR
+            if (pedido.getEstadoPedidoEnum() != EstadoPedidoEnum.BORRADOR) {
+                throw new RuntimeException("El pedido no está disponible para pago. Estado actual: " + pedido.getEstadoPedidoEnum());
+            }
+
+            // Crear la sesión de Checkout de Stripe
+            SessionCreateParams params = SessionCreateParams.builder()
+                    .setMode(SessionCreateParams.Mode.PAYMENT)
+                    .setSuccessUrl("http://localhost:5173/pago-exitoso.html?pedidoId=" + pedido.getId())
+                    .setCancelUrl("http://localhost:5173/pago-cancelado.html?pedidoId=" + pedido.getId())
+                    .setCustomerEmail(customerEmail)
+                    .addLineItem(
+                            SessionCreateParams.LineItem.builder()
+                                    .setQuantity(1L)
+                                    .setPriceData(
+                                            SessionCreateParams.LineItem.PriceData.builder()
+                                                    .setCurrency("cop")
+                                                    .setUnitAmount(pedido.getTotal().multiply(new java.math.BigDecimal("100")).longValue()) // Convertir a centavos Convertir a
+                                    // centavos
+                                                    .setProductData(
+                                                            SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                                    .setName("Pedido #" + pedido.getId())
+                                                                    .setDescription("Pago del pedido en el restaurante")
+                                                                    .build())
+                                                    .build())
+                                    .build())
+                    .putMetadata("pedido_id", pedido.getId().toString())
+                    .build();
+
+            Session session = Session.create(params);
+
+            // Actualizar el pedido existente con el sessionId de Stripe
+            pedido.setStripeSessionId(session.getId());
+            pedidoRepository.save(pedido);
+
+            System.out.println("Sesión de Stripe creada para pedido existente: " + pedido.getId());
+            System.out.println("Session ID: " + session.getId());
+            System.out.println("Checkout URL: " + session.getUrl());
+
+            return new SesionPagoResponse(session.getId(), session.getUrl(), pedido.getId());
+
+        } catch (StripeException e) {
+            System.err.println("Error creando sesión de Stripe: " + e.getMessage());
+            throw new RuntimeException("Error creando sesión de Stripe: " + e.getMessage());
+        }
+    }
 }

@@ -95,9 +95,9 @@ public class StripeWebhookController {
                     .orElse(null);
 
             if (pedido != null) {
-                pedido.setEstadoPedidoEnum(EstadoPedidoEnum.CONFIRMADO);
+                pedido.setEstadoPedidoEnum(EstadoPedidoEnum.COMPLETADO);
                 pedidoRepository.save(pedido);
-                System.out.println("Pedido actualizado a CONFIRMADO: " + pedidoId);
+                System.out.println("Pedido actualizado a COMPLETADO: " + pedidoId);
             } else {
                 System.out.println("Pedido no encontrado en BD: " + pedidoId);
             }

@@ -12,6 +12,7 @@ import java.util.List;
 public class PedidoResponse {
     private Long id;
     private String nombreUsuario;
+    private String emailUsuario;
     private TipoServicio tipoServicio;
     private LocalDateTime fechaPedido;
     private EstadoPedidoEnum estadoPedidoEnum;

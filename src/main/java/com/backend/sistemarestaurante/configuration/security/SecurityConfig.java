@@ -95,7 +95,7 @@ public class SecurityConfig {
                     // ADMIN Y USER
                     http.requestMatchers(HttpMethod.POST, "/api/pedidos").hasAnyRole("ADMIN", "USER");
                     http.requestMatchers(HttpMethod.GET, "/api/pedidos").hasAnyRole("ADMIN", "USER");
-
+                    http.requestMatchers(HttpMethod.GET, "/api/pedidos/{id}").hasAnyRole("ADMIN", "USER");
                     http.requestMatchers(HttpMethod.GET, "/api/pedidos/all").hasRole("ADMIN");
 
                     // Reservas

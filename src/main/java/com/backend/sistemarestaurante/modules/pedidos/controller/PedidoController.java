@@ -62,4 +62,12 @@ public class PedidoController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    // Obtner pedido por id
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<PedidoResponse> obtenerPedidoPorId(@PathVariable Long id) {
+        PedidoResponse response = pedidoService.obtenerPedidoPorId(id);
+        return ResponseEntity.ok(response);
+    }
+
 }

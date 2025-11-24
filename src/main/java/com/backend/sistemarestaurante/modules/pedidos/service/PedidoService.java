@@ -83,6 +83,7 @@ public class PedidoService{
 
         // Campos que necesitan lógica especial
         response.setNombreUsuario(pedido.getUsuario().getNombreCompleto());
+        response.setEmailUsuario(pedido.getUsuario().getEmail());
 
         // Validar nulos en detalles
         if (pedido.getDetalles() != null) {
@@ -183,5 +184,26 @@ public class PedidoService{
         if (estadoActual == EstadoPedidoEnum.COMPLETADO && nuevoEstado != EstadoPedidoEnum.COMPLETADO) {
             throw new IllegalStateException("No se puede modificar un pedido completado");
         }
+    }
+
+    // Obtner pedido por id
+    public PedidoResponse obtenerPedidoPorId(Long id){
+        // Verificar si el pedido existe
+        Pedido pedidoExistente = pedidoRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Pedido no encontrado con el id: " + id));
+
+        // Mapeo a DTO para campos simples
+        PedidoResponse response = modelMapper.map(pedidoExistente, PedidoResponse.class);
+
+        // Campos que necesitan lógica especial
+        response.setNombreUsuario(pedidoExistente.getUsuario().getNombreCompleto());
+        response.setEmailUsuario(pedidoExistente.getUsuario().getEmail());
+
+        return response;
+    }
+
+    public Pedido obtenerPedidoEntityPorId(Long id) {
+        return pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado con id: " + id));
     }
 }

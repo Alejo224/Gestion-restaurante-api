@@ -167,8 +167,8 @@ public class StripeService {
             // Crear la sesión de Checkout de Stripe
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl("http://localhost:5173/pago-exitoso.html?pedidoId=" + pedido.getId())
-                    .setCancelUrl("http://localhost:5173/pago-cancelado.html?pedidoId=" + pedido.getId())
+                    .setSuccessUrl("http://localhost:5173/restaurante-frontend/pago-exitoso.html?pedidoId=" + pedido.getId())
+                    .setCancelUrl("http://localhost:5173/restaurante-frontend/pago-cancelado.html?pedidoId=" + pedido.getId())
                     .setCustomerEmail(customerEmail)
                     .addLineItem(
                             SessionCreateParams.LineItem.builder()

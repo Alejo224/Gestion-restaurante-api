@@ -72,7 +72,7 @@ public class PlatoService {
 
             // 2. BUSCAR Y ASIGNAR LA CATEGORÍA COMPLETA MANUALMENTE
             CategoriaPlato categoria = categoriaPlatoRepository.findById(platoRequest.getCategoriaId())
-                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + platoRequest.getCategoriaId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + platoRequest.getCategoriaId()));
             plato.setCategoria(categoria);  // Asignar objeto completo, no solo ID
 
             // 3. Guardar el plato en la base de datos primero (para generar el ID)
@@ -98,7 +98,7 @@ public class PlatoService {
         try {
             // 1. Buscar plato existente
             Plato platoExistente = platoRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Plato no encontrado con ID: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("Plato no encontrado con ID: " + id));
 
             // 2. Actualizar datos básicos
             platoExistente.setNombre(platoRequest.getNombre());
@@ -109,7 +109,7 @@ public class PlatoService {
             // 3. Actualizar categoría si es diferente
             if (!platoExistente.getCategoria().getId().equals(platoRequest.getCategoriaId())) {
                 CategoriaPlato nuevaCategoria = categoriaPlatoRepository.findById(platoRequest.getCategoriaId())
-                        .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
                 platoExistente.setCategoria(nuevaCategoria);
             }
 

@@ -1,16 +1,14 @@
 package com.backend.sistemarestaurante.modules.pedidos.controller;
 
-import com.backend.sistemarestaurante.modules.pedidos.dtos.PedidoRequest;
-import com.backend.sistemarestaurante.modules.pedidos.dtos.PedidoResponse;
+import com.backend.sistemarestaurante.modules.pedidos.dto.CancelarPedidoRequest;
+import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoRequest;
+import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoResponse;
 import com.backend.sistemarestaurante.modules.pedidos.service.PedidoService;
-import com.backend.sistemarestaurante.modules.usuarios.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,6 +51,23 @@ public class PedidoController {
     public ResponseEntity<List<PedidoResponse>> obtenerTodosLosPedidos(){
         List<PedidoResponse> pedidos = pedidoService.obtenerTodosLosPedidos();
         return ResponseEntity.ok(pedidos);
+    }
+    
+    // Cancelar pedido
+    @PutMapping("/{id}/cancelar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<PedidoResponse> cancelarPedido(@PathVariable Long id, @RequestBody CancelarPedidoRequest request){
+        PedidoResponse response = pedidoService.cancelarPedido(id, request);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    // Obtner pedido por id
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<PedidoResponse> obtenerPedidoPorId(@PathVariable Long id) {
+        PedidoResponse response = pedidoService.obtenerPedidoPorId(id);
+        return ResponseEntity.ok(response);
     }
 
 }

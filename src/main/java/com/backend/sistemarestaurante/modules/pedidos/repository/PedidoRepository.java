@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
@@ -14,4 +15,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     // si prefieres buscar por email (más consistente con tu enfoque)
     List<Pedido> findByUsuarioEmail(String email);
+
+    Optional<Pedido> findById(Long id);
 }

@@ -1,4 +1,4 @@
-package com.backend.sistemarestaurante.modules.pedidos.dtos;
+package com.backend.sistemarestaurante.modules.pedidos.dto;
 
 import com.backend.sistemarestaurante.modules.pedidos.enums.EstadoPedidoEnum;
 import com.backend.sistemarestaurante.modules.pedidos.enums.TipoServicio;
@@ -12,6 +12,7 @@ import java.util.List;
 public class PedidoResponse {
     private Long id;
     private String nombreUsuario;
+    private String emailUsuario;
     private TipoServicio tipoServicio;
     private LocalDateTime fechaPedido;
     private EstadoPedidoEnum estadoPedidoEnum;
@@ -21,6 +22,10 @@ public class PedidoResponse {
     private LocalDateTime horaRecogida;        // Solo para RECOGER_PEDIDO
     private String direccionEntrega;           // Solo para DOMICILIO
     private String telefonoContacto;           // Para ambos, pero mostrar según contexto
+    
+    // Campos para cancelacion de pedidos
+    private LocalDateTime fechaCancelacion;
+    private String motivoCancelacion;
 
     private List<DetallePedidoResponse> detalles;
 

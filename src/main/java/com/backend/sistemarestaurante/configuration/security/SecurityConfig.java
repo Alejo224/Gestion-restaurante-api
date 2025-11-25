@@ -95,7 +95,7 @@ public class SecurityConfig {
                     // ADMIN Y USER
                     http.requestMatchers(HttpMethod.POST, "/api/pedidos").hasAnyRole("ADMIN", "USER");
                     http.requestMatchers(HttpMethod.GET, "/api/pedidos").hasAnyRole("ADMIN", "USER");
-
+                    http.requestMatchers(HttpMethod.GET, "/api/pedidos/{id}").hasAnyRole("ADMIN", "USER");
                     http.requestMatchers(HttpMethod.GET, "/api/pedidos/all").hasRole("ADMIN");
 
                     // Reservas
@@ -117,6 +117,11 @@ public class SecurityConfig {
 
                     // Permitir logout sin autenticacion
                     http.requestMatchers("api/usuarios/logout").permitAll();
+
+                    // proceso depago com Stripe
+                    http.requestMatchers("api/webhooks/stripe").permitAll();
+
+                    http.requestMatchers(HttpMethod.POST, "api/pagos/crear-sesion").hasAnyRole("ADMIN", "USER");
 
                     // Configurar el resto de endpoint - Requieren autenticación
                     http.anyRequest().authenticated();

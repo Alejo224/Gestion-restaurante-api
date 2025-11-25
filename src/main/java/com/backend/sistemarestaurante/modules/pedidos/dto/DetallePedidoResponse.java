@@ -1,4 +1,4 @@
-package com.backend.sistemarestaurante.modules.pedidos.dtos;
+package com.backend.sistemarestaurante.modules.pedidos.dto;
 
 import lombok.Data;
 

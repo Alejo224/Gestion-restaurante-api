@@ -1,6 +1,5 @@
 package com.backend.sistemarestaurante.modules.pedidos;
 
-import com.backend.sistemarestaurante.modules.mesas.Mesa;
 import com.backend.sistemarestaurante.modules.pedidos.enums.EstadoPedidoEnum;
 import com.backend.sistemarestaurante.modules.pedidos.enums.TipoServicio;
 import com.backend.sistemarestaurante.modules.platos.Plato;
@@ -33,7 +32,11 @@ public class Pedido {
     private TipoServicio tipoServicio;
 
     // Detalles segun tipo de servicio
-    private LocalDateTime horaRecogida; // Para RECOGER_PEDIDO
+    private LocalDateTime horaRecogida; // Asignarlo al restaurante
+
+    // Campos para cancelacion de pedidos
+    private LocalDateTime fechaCancelacion;
+    private String motivoCancelacion;
 
     // Campos OPCIONALES (solo para domicilio)
     private String direccionEntrega;
@@ -43,7 +46,7 @@ public class Pedido {
     private LocalDateTime fechaPedido;
 
     // Estado del pedido
-    @Column(nullable = false)
+    @Column(name = "estado", nullable = false)
     @Enumerated(EnumType.STRING)
     private EstadoPedidoEnum estadoPedidoEnum = EstadoPedidoEnum.BORRADOR;
 
@@ -87,5 +90,29 @@ public class Pedido {
         this.iva = this.subtotal.multiply(BigDecimal.valueOf(0.19)); // 19% IVA
         this.total = this.subtotal.add(this.iva);
     }
+    
+    // Método para cancelar pedido
+    public void cancelar(String motivo){
+        this.estadoPedidoEnum = EstadoPedidoEnum.CANCELADO;
+        this.fechaCancelacion = LocalDateTime.now();
+        this.motivoCancelacion = motivo;
+    }
+    
+    // Método para verificar si se puede cancelar
+    public boolean puedeSerCancelado(){
+        return this.estadoPedidoEnum == EstadoPedidoEnum.BORRADOR;
+    }
+    
+    // Método para asignar hora de recogida (por el restaurante)
+    public void asignarHoraRecogida(LocalDateTime horaRecogida){
+        this.horaRecogida = horaRecogida;
+    }
+    
+    // Método para cambiar el estado
+    public void cambiarEstado(EstadoPedidoEnum nuevoEstado){
+        this.estadoPedidoEnum = nuevoEstado;
+    }
 
+    // sesion de stripe
+    private String stripeSessionId;
 }

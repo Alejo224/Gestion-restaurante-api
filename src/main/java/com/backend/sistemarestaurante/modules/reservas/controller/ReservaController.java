@@ -1,8 +1,11 @@
 package com.backend.sistemarestaurante.modules.reservas.controller;
 
+import com.backend.sistemarestaurante.modules.reservas.Reserva;
 import com.backend.sistemarestaurante.modules.reservas.dto.ReservaRequestDTO;
 import com.backend.sistemarestaurante.modules.reservas.dto.ReservaResponseDTO;
+import com.backend.sistemarestaurante.modules.reservas.repository.ReservaRepository;
 import com.backend.sistemarestaurante.modules.reservas.service.ReservaService;
+import jakarta.servlet.http.PushBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -89,5 +92,14 @@ public class ReservaController {
                 reservaService.obtenerMesasOcupadas(fecha, hora);
 
         return ResponseEntity.ok(mesasOcupadasIds);
+    }
+    @PutMapping("/{id}/cancelar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<Void> cancelarReservacion(
+            @PathVariable Long id,
+            @AuthenticationPrincipal String usuarioEmail) {
+
+        reservaService.cancelarReserva(id, usuarioEmail);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -105,6 +105,7 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "/api/reserva/all").hasRole("ADMIN");
                     //lo pongo para poder accesder al get de mirar las mesas ocupadas
                     http.requestMatchers(HttpMethod.GET,"/api/reserva/mesas-ocupadas").hasAnyRole("ADMIN","USER");
+                    http.requestMatchers(HttpMethod.PUT," /api/reserva/{id}/cancelar").hasAnyRole("ADMIN","USER");
     
                     // acceso a los endpoints de Swagger
                     http.requestMatchers("/swagger-ui.html",

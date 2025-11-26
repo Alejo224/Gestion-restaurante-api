@@ -140,7 +140,14 @@ public class ReservaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
 
         reserva.setEstado("CANCELADA");
+        Mesa mesa = reserva.getMesa();
+        //cambiamos el estado de la mesa
+        mesa.setEstado(true);
+        //guardamos la mesa
+        mesaRepository.save(mesa);
+        //guardmaos la reserva
         reservaRepository.save(reserva);
+
         return true;
     }
 
@@ -158,6 +165,8 @@ public class ReservaService {
                         (fecha, hora, "CONFIRMADA").stream().map(this::convertirAResponseDTO)
                 .toList();
     }
+
+
 
     public ReservaResponseDTO actualizarReserva(Long id,
                                                 ReservaRequestDTO reservaDTO,

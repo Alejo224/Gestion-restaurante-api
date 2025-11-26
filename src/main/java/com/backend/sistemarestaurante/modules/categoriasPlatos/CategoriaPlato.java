@@ -33,4 +33,8 @@ public class CategoriaPlato {
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     // ¡NO se incluye en @ToString y no necesita @EqualsAndHashCode.Exclude!
     private List<Plato> platos = new ArrayList<>();
+
+    public CategoriaPlato(String entradas) {
+        this.nombreCategoria = entradas;
+    }
 }

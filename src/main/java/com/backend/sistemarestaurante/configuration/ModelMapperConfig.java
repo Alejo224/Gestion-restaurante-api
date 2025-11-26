@@ -1,6 +1,9 @@
 package com.backend.sistemarestaurante.configuration;
 
+import com.backend.sistemarestaurante.modules.pedidos.Pedido;
+import com.backend.sistemarestaurante.modules.pedidos.dto.PedidoRequest;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,9 +19,22 @@ public class ModelMapperConfig {
      * @return Una instancia de `ModelMapper`.
      */
     @Bean
-    public ModelMapper modelMapper(){
-        // Instancia del modelMapper
-        return new ModelMapper();
-    }
+    public ModelMapper modelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
 
+        modelMapper.getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STRICT)
+                .setSkipNullEnabled(true);
+
+        // Configurar para que ignore estadoPedidoEnum al mapear desde Request
+        modelMapper.typeMap(PedidoRequest.class, Pedido.class)
+                .addMappings(mapper -> {
+                    mapper.skip(Pedido::setEstadoPedidoEnum);
+                    mapper.skip(Pedido::setId);
+                    mapper.skip(Pedido::setUsuario);
+                    mapper.skip(Pedido::setFechaPedido);
+                });
+
+        return modelMapper;
+    }
 }

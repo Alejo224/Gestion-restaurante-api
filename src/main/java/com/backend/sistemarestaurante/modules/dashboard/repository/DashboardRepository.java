@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DashboardRepository extends JpaRepository<Pedido, Long> {
@@ -57,9 +56,10 @@ public interface DashboardRepository extends JpaRepository<Pedido, Long> {
 
     @Query("""
            SELECT new com.backend.sistemarestaurante.modules.dashboard.dto.TopPlatoDTO(
-               dp.plato.nombre,
-               SUM(dp.cantidad)
-           )
+                   dp.plato.nombre,
+                   SUM(dp.cantidad),
+                   SUM(dp.subtotal)
+               )
            FROM DetallePedido dp
            JOIN dp.pedido p
            WHERE p.estadoPedidoEnum = :estado
@@ -102,11 +102,27 @@ public interface DashboardRepository extends JpaRepository<Pedido, Long> {
     Long pedidosHoy();
 
     @Query("""
+           SELECT COUNT(p)
+           FROM Pedido p
+           WHERE CAST(p.fechaPedido AS localDate) = CURRENT_DATE 
+             AND p.estadoPedidoEnum = :estado
+           """)
+    Long pedidosHoyPorEstado(@Param("estado") EstadoPedidoEnum estado);
+
+    @Query("""
            SELECT COUNT(r)
            FROM Reserva r
            WHERE r.fechaReserva = CURRENT_DATE
            """)
     Long reservasHoy();
+
+    @Query("""
+           SELECT COUNT(r)
+           FROM Reserva r
+           WHERE r.fechaReserva = CURRENT_DATE
+             AND r.estado = 'CONFIRMADA'
+           """)
+    Long reservasConfirmadasHoy();
 
     // ===========================
     //     MESAS Y PLATOS

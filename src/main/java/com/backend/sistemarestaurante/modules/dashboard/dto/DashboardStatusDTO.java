@@ -6,8 +6,9 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-public class DashboardStatsDTO {
+public class DashboardStatusDTO {
     private Long reservasHoy;
+    private Long reservasConfirmadasHoy; // Nuevo campo
     private String mesasOcupadas;
     private BigDecimal ingresosHoy;
     private Long platosActivos;

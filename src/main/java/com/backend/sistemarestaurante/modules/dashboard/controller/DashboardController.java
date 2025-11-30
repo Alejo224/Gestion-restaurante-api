@@ -49,7 +49,7 @@ public class DashboardController {
     // NUEVO ENDPOINT PARA LAS ESTADÍSTICAS ESPECÍFICAS DEL DASHBOARD
     @GetMapping("/estadisticas-hoy")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<DashboardStatsDTO> getEstadisticasHoy() {
+    public ResponseEntity<DashboardStatusDTO> getEstadisticasHoy() {
         return ResponseEntity.ok(dashboardServiceImpl.obtenerEstadisticasHoy());
     }
 }

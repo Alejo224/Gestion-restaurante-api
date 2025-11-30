@@ -154,7 +154,6 @@ public class StripeService {
         return Session.create(params);
     }
 
-    // En tu StripeService - agrega este método
     public SesionPagoResponse crearSesionPagoParaPedidoExistente(Pedido pedido, String customerEmail) {
         try {
             System.out.println("💰 Creando sesión de Stripe para pedido existente: " + pedido.getId());

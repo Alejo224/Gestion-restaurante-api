@@ -62,13 +62,12 @@ public class ReservaController {
     }
 
     // Cancelar reserva (solo si es del usuario)
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<Void> cancelarReserva(
-            @PathVariable Long id,
-            @AuthenticationPrincipal String usuarioEmail) {
+    @PutMapping("/{id}/cancelar-admin")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<Void> cancelarReservaAdmin(
+            @PathVariable Long id) {
 
-        reservaService.cancelarReserva(id, usuarioEmail);
+        reservaService.cancelarReservaAdmin(id);
         return ResponseEntity.noContent().build();
     }
 

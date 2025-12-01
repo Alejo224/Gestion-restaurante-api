@@ -1,11 +1,8 @@
 package com.backend.sistemarestaurante.modules.reservas.service;
 
-import com.backend.sistemarestaurante.modules.categoriasPlatos.CategoriaPlato;
 import com.backend.sistemarestaurante.modules.mesas.Mesa;
 import com.backend.sistemarestaurante.modules.mesas.MesaRepository;
 import com.backend.sistemarestaurante.modules.mesas.dto.MesaResponseDTO;
-import com.backend.sistemarestaurante.modules.platos.Plato;
-import com.backend.sistemarestaurante.modules.platos.dto.PlatoResponseDto;
 import com.backend.sistemarestaurante.modules.reservas.ConfiguracionHorario;
 import com.backend.sistemarestaurante.modules.reservas.Reserva;
 import com.backend.sistemarestaurante.modules.reservas.dto.ReservaRequestDTO;
@@ -14,6 +11,7 @@ import com.backend.sistemarestaurante.modules.reservas.repository.ReservaReposit
 import com.backend.sistemarestaurante.shared.exceptions.ResourceNotFoundException;
 import com.backend.sistemarestaurante.shared.exceptions.business.*;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,6 +19,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -29,6 +28,7 @@ public class ReservaService {
     private final ReservaRepository reservaRepository;
     private final ConfiguracionHorarioService horarioService;
     private final MesaRepository mesaRepository;
+    private final ModelMapper modelMapper;
 
 
     public ReservaResponseDTO crearReserva(ReservaRequestDTO reservaDTO, String usuarioEmail) {
@@ -136,19 +136,50 @@ public class ReservaService {
     }
 
     public boolean cancelarReserva(Long id, String usuarioEmail) {
-        Reserva reserva = reservaRepository.findByIdAndUsuarioEmail(id, usuarioEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
+        Optional<Reserva> existeReserva = reservaRepository.findByIdAndUsuarioEmail(id, usuarioEmail);
+
+        if (existeReserva.isEmpty()) {
+            return false; // Retornar false cuando no se encuentra la reserva
+        }
+
+        Reserva reserva = existeReserva.get();
+
+        // Verificar si la reserva ya está cancelada
+        if ("CANCELADA".equals(reserva.getEstado())) {
+            return false;
+        }
 
         reserva.setEstado("CANCELADA");
         Mesa mesa = reserva.getMesa();
-        //cambiamos el estado de la mesa
+
+        // Cambiamos el estado de la mesa (true = disponible)
         mesa.setEstado(true);
-        //guardamos la mesa
+
+        // Guardamos la mesa
         mesaRepository.save(mesa);
-        //guardmaos la reserva
+
+        // Guardamos la reserva
         reservaRepository.save(reserva);
 
         return true;
+    }
+
+    public ReservaResponseDTO cancelarReservaAdmin(Long id){
+        Reserva existeReserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
+
+        existeReserva.setEstado("CANCELADA");
+        Mesa mesa = existeReserva.getMesa();
+
+        // Cambiamos el estado de la mesa (true = disponible)
+        mesa.setEstado(true);
+
+        // Guardamos la mesa
+        mesaRepository.save(mesa);
+
+        // Guardamos la mesa
+        return modelMapper.map(reservaRepository.save(existeReserva), ReservaResponseDTO.class);
+
     }
 
     public List<ReservaResponseDTO> obtenerTodasLasReservas() {

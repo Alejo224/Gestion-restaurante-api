@@ -92,6 +92,13 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.PUT, "/api/mesas/{id}").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "/api/mesas/{id}").hasRole("ADMIN");
 
+                    http.requestMatchers(HttpMethod.GET, "/api/dashboard").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/dashboard/resumen").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/dashboard/ventas").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/dashboard/top-platos").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/dashboard/pedidos-estados").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/dashboard/estadisticas-hoy").permitAll();
+
                     // ADMIN Y USER
                     http.requestMatchers(HttpMethod.POST, "/api/pedidos").hasAnyRole("ADMIN", "USER");
                     http.requestMatchers(HttpMethod.GET, "/api/pedidos").hasAnyRole("ADMIN", "USER");

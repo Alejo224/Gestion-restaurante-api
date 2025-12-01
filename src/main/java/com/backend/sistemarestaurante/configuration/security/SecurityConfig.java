@@ -108,7 +108,7 @@ public class SecurityConfig {
                     // Reservas
                     http.requestMatchers(HttpMethod.GET, "/api/reserva/mis-reservas").hasAnyRole("ADMIN", "USER");
                     http.requestMatchers(HttpMethod.POST, "/api/reserva").hasAnyRole("ADMIN", "USER");
-                    http.requestMatchers(HttpMethod.GET, "/api/reserva/{id}").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.PUT, "/api/reserva/{id}/cancelar-admin").hasAnyRole("ADMIN");
                     http.requestMatchers(HttpMethod.GET, "/api/reserva/all").hasRole("ADMIN");
                     //lo pongo para poder accesder al get de mirar las mesas ocupadas
                     http.requestMatchers(HttpMethod.GET,"/api/reserva/mesas-ocupadas").hasAnyRole("ADMIN","USER");

@@ -1,17 +1,31 @@
+# Etapa 1: Construcción
+FROM eclipse-temurin:17-jdk AS builder
+
+WORKDIR /app
+
+# Copiar solo archivos necesarios para descargar dependencias
+COPY mvnw pom.xml ./
+COPY .mvn .mvn
+RUN chmod +x mvnw
+
+# Descargar dependencias (cache)
+RUN ./mvnw dependency:go-offline -DskipTests
+
+# Copiar resto del código fuente
+COPY src ./src
+
+# Construir el JAR
+RUN ./mvnw -DskipTests package
+
+# Etapa 2: Imagen final liviana
 FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-# Copiar archivos de Maven Wrapper y pom.xml
-COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
-RUN chmod +x mvnw
-
-# Descargar dependencias (esto se cachea si pom.xml no cambia)
-RUN ./mvnw dependency:go-offline -DskipTests
-
-# El código fuente se montará por volumen, así que no se copia aquí
+# Copiar el JAR desde la etapa de construcción
+COPY --from=builder /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-# No definas ENTRYPOINT ni CMD aquí, se usará el comando del compose
+# Comando de inicio
+CMD ["java", "-jar", "app.jar"]

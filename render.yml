@@ -1,33 +1,34 @@
 services:
-  - name: restaurante-api
-    type: web
-    env: docker
-    plan: free
+  - type: web
+    name: sistemarestaurante-api
+    runtime: docker
+    repo: .
+    plan: starter
     region: oregon
     dockerfilePath: ./Dockerfile
-    dockerContext: .
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: restaurante-db
-          property: connectionString
-
       - key: SPRING_DATASOURCE_URL
-        value: ${DATABASE_URL/\/\//jdbc:postgresql:\/\/}
-
+        fromService:
+          name: sistemarestaurante-db
+          type: database
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: restaurante-db
+        fromService:
+          name: sistemarestaurante-db
+          type: database
           property: user
-
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: restaurante-db
+        fromService:
+          name: sistemarestaurante-db
+          type: database
           property: password
-
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
       - key: SERVER_PORT
+        value: 8080
+      - key: PORT
         value: 8080
 
 databases:
-  - name: restaurante-db
+  - name: sistemarestaurante-db
     plan: free

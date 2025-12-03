@@ -184,7 +184,8 @@ public class SecurityConfig {
                 "https://alejo224.github.io",  // Dominio de GitHub Pages
                 "http://localhost:5173",        // Desarrollo local
                 "http://127.0.0.1:5500",         // entorno actual (Live Server)
-                "http://localhost:8080"
+                "http://localhost:8080",
+                "https://restaurante-frontend-v0mv.onrender.com"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
